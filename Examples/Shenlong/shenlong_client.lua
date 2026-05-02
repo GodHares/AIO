@@ -176,8 +176,16 @@ local function CreateItemSlot(parent, itemData, index)
     border:SetTexture("Interface/Buttons/UI-EmptySlot")          
     border:SetVertexColor(0.6, 0.6, 0.6)          
     container.border = border      
+
+    -- Borde de rareza (glow)
+    local qualityGlow = container:CreateTexture(nil, "OVERLAY", nil, 1)
+    qualityGlow:SetSize(62, 62)
+    qualityGlow:SetPoint("CENTER")
+    qualityGlow:SetTexture("Interface/Buttons/UI-ActionButton-Border")
+    qualityGlow:SetBlendMode("ADD")
+    container.qualityGlow = qualityGlow
               
-    local icon = container:CreateTexture(nil, "OVERLAY")          
+    local icon = container:CreateTexture(nil, "ARTWORK")          
     icon:SetSize(42, 42)          
     icon:SetPoint("CENTER")    
     local itemIcon = GetItemIcon(itemData.id)
@@ -198,11 +206,13 @@ local function CreateItemSlot(parent, itemData, index)
     local hasItem = (GetItemCount(itemData.id) or 0) > 0
     if hasItem then
         icon:SetVertexColor(1, 1, 1, 1)
-        border:SetVertexColor(qColor.r, qColor.g, qColor.b)
+        qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 0.8)
+        qualityGlow:Show()
     else
         icon:SetVertexColor(0.3, 0.3, 0.3, 0.6)
         icon:SetDesaturated(true)
-        border:SetVertexColor(qColor.r * 0.4, qColor.g * 0.4, qColor.b * 0.4)
+        qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 0.3)
+        qualityGlow:Show()
     end      
               
     local button = CreateFrame("Button", nil, container)          
@@ -221,7 +231,7 @@ local function CreateItemSlot(parent, itemData, index)
             icon:SetVertexColor(0.3, 0.3, 0.3, 0.6)
             icon:SetDesaturated(true)
             bg:SetVertexColor(0.3, 0.3, 0.3, 0.8)          
-            border:SetVertexColor(qColor.r * 0.4, qColor.g * 0.4, qColor.b * 0.4)          
+            qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 0.3)          
         end          
     end)          
               
@@ -237,7 +247,8 @@ local function CreateItemSlot(parent, itemData, index)
                     slot.icon:SetDesaturated(false)
                     slot.icon:Show()      
                     slot.bg:SetVertexColor(0, 0.5, 0, 0.8)      
-                    slot.border:SetVertexColor(0, 1, 0)      
+                    local sq = slot.qualityColor or {r = 0.6, g = 0.6, b = 0.6}
+                    slot.qualityGlow:SetVertexColor(sq.r, sq.g, sq.b, 1)      
                     ClearCursor()      
                     return      
                 end      
@@ -250,11 +261,11 @@ local function CreateItemSlot(parent, itemData, index)
         GameTooltip:SetHyperlink("item:" .. itemData.id .. ":0:0:0:0:0:0:0")
         local hasItem = (GetItemCount(itemData.id) or 0) > 0
         if container.filled then          
-            border:SetVertexColor(0, 1, 0)          
+            qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 1)
         elseif hasItem then
-            border:SetVertexColor(qColor.r, qColor.g, qColor.b)
+            qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 0.8)
         else          
-            border:SetVertexColor(qColor.r * 0.4, qColor.g * 0.4, qColor.b * 0.4)          
+            qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 0.3)
             GameTooltip:AddLine(" ")
             GameTooltip:AddLine("|cFFFF4444No tienes este item|r")
         end          
@@ -263,13 +274,13 @@ local function CreateItemSlot(parent, itemData, index)
               
     button:SetScript("OnLeave", function()          
         if container.filled then    
-            border:SetVertexColor(0, 0.8, 0)    
+            qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 1)
         else    
             local hasIt = (GetItemCount(itemData.id) or 0) > 0
             if hasIt then
-                border:SetVertexColor(qColor.r, qColor.g, qColor.b)
+                qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 0.8)
             else
-                border:SetVertexColor(qColor.r * 0.4, qColor.g * 0.4, qColor.b * 0.4)
+                qualityGlow:SetVertexColor(qColor.r, qColor.g, qColor.b, 0.3)
             end
         end    
         GameTooltip:Hide()          
@@ -293,12 +304,22 @@ local function CreateRewardCircle(parent, rewardData, index, onClick)
     local border = circle:CreateTexture(nil, "BORDER")    
     border:SetAllPoints()    
     border:SetTexture("Interface/Buttons/UI-EmptySlot")    
-    local rqColor = rewardData.id and GetQualityColor(rewardData.id) or {r = 0.6, g = 0.6, b = 0.6}
-    border:SetVertexColor(rqColor.r, rqColor.g, rqColor.b)    
+    border:SetVertexColor(0.6, 0.6, 0.6)    
     circle.border = border
+
+    -- Borde de rareza (glow)
+    local rqColor = rewardData.id and GetQualityColor(rewardData.id) or {r = 0.6, g = 0.6, b = 0.6}
+    local rGlow = circle:CreateTexture(nil, "OVERLAY", nil, 1)
+    rGlow:SetSize(54, 54)
+    rGlow:SetPoint("CENTER")
+    rGlow:SetTexture("Interface/Buttons/UI-ActionButton-Border")
+    rGlow:SetBlendMode("ADD")
+    rGlow:SetVertexColor(rqColor.r, rqColor.g, rqColor.b, 0.9)
+    rGlow:Show()
+    circle.qualityGlow = rGlow
     circle.qualityColor = rqColor    
     
-    local icon = circle:CreateTexture(nil, "OVERLAY")    
+    local icon = circle:CreateTexture(nil, "ARTWORK")    
     icon:SetSize(36, 36)    
     icon:SetPoint("CENTER")    
     circle.icon = icon    
@@ -546,7 +567,7 @@ local function ShowRewardSelection(player, groupedRewards, hasItems, missingItem
                         rc.icon:SetVertexColor(1, 1, 1, 1)    
                         rc.icon:SetDesaturated(false)    
                         local rcq = rc.qualityColor or {r = 0.6, g = 0.6, b = 0.6}
-                        rc.border:SetVertexColor(rcq.r, rcq.g, rcq.b)    
+                        rc.qualityGlow:SetVertexColor(rcq.r, rcq.g, rcq.b, 0.9)    
                     end    
                     return    
                 end    
@@ -555,16 +576,17 @@ local function ShowRewardSelection(player, groupedRewards, hasItems, missingItem
                 selectedRewards[groupKey] = origIdx    
                 for vi, rc in pairs(rewardCircles[groupKey]) do    
                     local oi = originalIndices[groupKey][vi]    
+                    local rcq = rc.qualityColor or {r = 0.6, g = 0.6, b = 0.6}
                     if oi == origIdx then    
                         rc.selected = true    
                         rc.icon:SetVertexColor(1, 1, 1, 1)    
                         rc.icon:SetDesaturated(false)    
-                        rc.border:SetVertexColor(UI_CONFIG.colors.selected.r, UI_CONFIG.colors.selected.g, UI_CONFIG.colors.selected.b)    
+                        rc.qualityGlow:SetVertexColor(rcq.r, rcq.g, rcq.b, 1)    
                     else    
                         rc.selected = false    
                         rc.icon:SetVertexColor(0.3, 0.3, 0.3, 0.7)    
                         rc.icon:SetDesaturated(true)    
-                        rc.border:SetVertexColor(0.3, 0.3, 0.3)    
+                        rc.qualityGlow:SetVertexColor(rcq.r * 0.3, rcq.g * 0.3, rcq.b * 0.3, 0.3)    
                     end    
                 end    
             end)    
@@ -607,7 +629,8 @@ local function ShowRewardSelection(player, groupedRewards, hasItems, missingItem
                 slot.icon:SetDesaturated(false)
                 slot.icon:Show()    
                 slot.bg:SetVertexColor(0, 0.5, 0, 0.8)    
-                slot.border:SetVertexColor(0, 1, 0)    
+                local sq = slot.qualityColor or {r = 0.6, g = 0.6, b = 0.6}
+                slot.qualityGlow:SetVertexColor(sq.r, sq.g, sq.b, 1)    
             end    
         end    
     
