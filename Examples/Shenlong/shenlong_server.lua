@@ -136,7 +136,23 @@ function handlers.OpenSummonUI(player)
     
     if bossIsSpawned then    
         local summonerName = playerSelectedSummoner[player:GetGUIDLow()] or "Desconocido"    
-        msg:Add("BossClancyGood", "ShowBossSpawned", summonerName)    
+        -- Construir lista de recompensas seleccionadas
+        local rewardSummary = {}
+        if groupSelectedRewards then
+            for groupIdx, itemIdx in pairs(groupSelectedRewards) do
+                local group = REWARD_GROUPS[groupIdx]
+                if group and group.items[itemIdx] then
+                    local item = group.items[itemIdx]
+                    table.insert(rewardSummary, {
+                        groupName = group.name,
+                        id = item.id,
+                        name = GetItemName(item.id, item.name),
+                        count = item.count
+                    })
+                end
+            end
+        end
+        msg:Add("BossClancyGood", "ShowBossSpawned", summonerName, rewardSummary)    
     else    
         local groupedRewards = {}    
         for groupIndex, group in ipairs(REWARD_GROUPS) do    

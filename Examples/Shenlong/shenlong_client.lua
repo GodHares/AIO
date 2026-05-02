@@ -411,21 +411,72 @@ end
 -- HANDLER: BOSS YA INVOCADO    
 -- ========================================          
     
-local function ShowBossSpawned(player, summonerName)    
+local function ShowBossSpawned(player, summonerName, rewardSummary)    
     ClearContent()    
     frame2:Hide()    
     
-    local msg = content1:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")    
-    msg:SetPoint("CENTER", 0, 20)    
-    msg:SetText("|cffFF4444Un jefe ya ha sido invocado|r")    
+    -- Cambiar título de la ventana
+    title1:SetText("|cffFFD700Dragon Invocado|r")
     
+    -- Mensaje de invocado por
     local sub = content1:CreateFontString(nil, "OVERLAY", "GameFontNormal")    
-    sub:SetPoint("CENTER", 0, -10)    
+    sub:SetPoint("TOP", 0, -10)    
     if summonerName then    
         sub:SetText("Invocado por: |cffFFD700" .. summonerName .. "|r")    
     else    
         sub:SetText("Espera a que sea derrotado.")    
     end    
+    
+    -- Lista de recompensas
+    if rewardSummary and #rewardSummary > 0 then
+        local rewardTitle = content1:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        rewardTitle:SetPoint("TOP", 0, -40)
+        rewardTitle:SetText("|cffFFD700Recompensas:|r")
+
+        local yOffset = -65
+        for i, reward in ipairs(rewardSummary) do
+            -- Nombre del grupo
+            local groupLabel = content1:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            groupLabel:SetPoint("TOP", 0, yOffset)
+            groupLabel:SetText("|cffAAAA00" .. reward.groupName .. "|r")
+            yOffset = yOffset - 15
+
+            -- Icono + nombre del item
+            local itemFrame = CreateFrame("Frame", nil, content1)
+            itemFrame:SetSize(300, 20)
+            itemFrame:SetPoint("TOP", 0, yOffset)
+
+            local itemIcon = itemFrame:CreateTexture(nil, "OVERLAY")
+            itemIcon:SetSize(18, 18)
+            itemIcon:SetPoint("LEFT", 40, 0)
+            local iconTex = GetItemIcon(reward.id)
+            if iconTex then
+                itemIcon:SetTexture(iconTex)
+                itemIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+            end
+
+            local itemLabel = itemFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            itemLabel:SetPoint("LEFT", itemIcon, "RIGHT", 5, 0)
+            local countText = ""
+            if reward.count and reward.count > 1 then
+                countText = " x" .. reward.count
+            end
+            itemLabel:SetText("|cffFFFFFF" .. reward.name .. countText .. "|r")
+
+            -- Tooltip al pasar el mouse
+            itemFrame:EnableMouse(true)
+            itemFrame:SetScript("OnEnter", function()
+                GameTooltip:SetOwner(itemFrame, "ANCHOR_RIGHT")
+                GameTooltip:SetHyperlink("item:" .. reward.id .. ":0:0:0:0:0:0:0")
+                GameTooltip:Show()
+            end)
+            itemFrame:SetScript("OnLeave", function()
+                GameTooltip:Hide()
+            end)
+
+            yOffset = yOffset - 22
+        end
+    end
     
     frame1:Show()    
 end    
@@ -437,6 +488,9 @@ end
 local function ShowRewardSelection(player, groupedRewards, hasItems, missingItems)    
     ClearContent()    
     frame2:Hide()    
+    
+    -- Restaurar título original
+    title1:SetText("|cffFFD700Mesa de Invocación del Dragon|r")    
     
     -- ============================    
     -- VENTANA 1: PREPARACIÓN (Esferas)    
