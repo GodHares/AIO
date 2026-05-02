@@ -74,7 +74,8 @@ local closeBtn1 = CreateFrame("Button", nil, frame1, "UIPanelCloseButton")
 closeBtn1:SetPoint("TOPRIGHT", -5, -5)          
     
 local content1 = CreateFrame("Frame", nil, frame1)    
-content1:SetAllPoints()    
+content1:SetPoint("TOPLEFT", frame1, "TOPLEFT", 0, -30)
+content1:SetPoint("BOTTOMRIGHT", frame1, "BOTTOMRIGHT", 0, 0)    
 
 -- ========================================          
 -- VENTANA 2: RECOMPENSAS (estático)    
