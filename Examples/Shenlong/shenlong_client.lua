@@ -221,7 +221,7 @@ local function CreateItemSlot(parent, itemData, index)
         end          
     end)          
               
-    container:SetScript("OnEnter", function()          
+    button:SetScript("OnEnter", function()          
         GameTooltip:SetOwner(container, "ANCHOR_RIGHT")          
         GameTooltip:SetHyperlink("item:" .. itemData.id .. ":0:0:0:0:0:0:0")
         if container.filled then          
@@ -236,7 +236,7 @@ local function CreateItemSlot(parent, itemData, index)
         GameTooltip:Show()          
     end)          
               
-    container:SetScript("OnLeave", function()          
+    button:SetScript("OnLeave", function()          
         if container.filled then    
             border:SetVertexColor(0, 0.8, 0)    
         else    
@@ -251,6 +251,7 @@ end
 local function CreateRewardCircle(parent, rewardData, index, onClick)    
     local circle = CreateFrame("Button", nil, parent)    
     circle:SetSize(42, 42)    
+    circle:RegisterForClicks("LeftButtonUp")
     circle.selected = false    
     
     local bg = circle:CreateTexture(nil, "BACKGROUND")    
