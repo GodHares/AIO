@@ -506,29 +506,34 @@ local function ShowRewardSelection(player, groupedRewards, hasItems, missingItem
     
             local circle = CreateRewardCircle(panel.iconArea, item, itemIdx, function(self)    
                 if selectedRewards[groupKey] == origIdx then    
+                    -- Deseleccionar: restaurar todos los del grupo a normal    
                     selectedRewards[groupKey] = nil    
                     self.selected = false    
-                    self.border:SetVertexColor(UI_CONFIG.colors.normal.r, UI_CONFIG.colors.normal.g, UI_CONFIG.colors.normal.b)    
+                    for vi, rc in pairs(rewardCircles[groupKey]) do    
+                        rc.selected = false    
+                        rc.icon:SetVertexColor(1, 1, 1, 1)    
+                        rc.icon:SetDesaturated(false)    
+                        rc.border:SetVertexColor(UI_CONFIG.colors.normal.r, UI_CONFIG.colors.normal.g, UI_CONFIG.colors.normal.b)    
+                    end    
                     return    
                 end    
     
-                if selectedRewards[groupKey] then    
-                    for vi, oi in pairs(originalIndices[groupKey]) do    
-                        if oi == selectedRewards[groupKey] and rewardCircles[groupKey][vi] then    
-                            rewardCircles[groupKey][vi].selected = false    
-                            rewardCircles[groupKey][vi].border:SetVertexColor(    
-                                UI_CONFIG.colors.normal.r,    
-                                UI_CONFIG.colors.normal.g,    
-                                UI_CONFIG.colors.normal.b    
-                            )    
-                            break    
-                        end    
+                -- Seleccionar este, opacar los demás del grupo    
+                selectedRewards[groupKey] = origIdx    
+                for vi, rc in pairs(rewardCircles[groupKey]) do    
+                    local oi = originalIndices[groupKey][vi]    
+                    if oi == origIdx then    
+                        rc.selected = true    
+                        rc.icon:SetVertexColor(1, 1, 1, 1)    
+                        rc.icon:SetDesaturated(false)    
+                        rc.border:SetVertexColor(UI_CONFIG.colors.selected.r, UI_CONFIG.colors.selected.g, UI_CONFIG.colors.selected.b)    
+                    else    
+                        rc.selected = false    
+                        rc.icon:SetVertexColor(0.3, 0.3, 0.3, 0.7)    
+                        rc.icon:SetDesaturated(true)    
+                        rc.border:SetVertexColor(0.3, 0.3, 0.3)    
                     end    
                 end    
-    
-                selectedRewards[groupKey] = origIdx    
-                self.selected = true    
-                self.border:SetVertexColor(UI_CONFIG.colors.selected.r, UI_CONFIG.colors.selected.g, UI_CONFIG.colors.selected.b)    
             end)    
             circle:SetPoint("CENTER", panel.iconArea, "CENTER", circleX, 0)    
             rewardCircles[groupKey][itemIdx] = circle    
