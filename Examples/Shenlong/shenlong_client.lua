@@ -164,12 +164,22 @@ local function CreateItemSlot(parent, itemData, index)
     if itemIcon then
         icon:SetTexture(itemIcon)
         icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
-        icon:SetVertexColor(0.4, 0.4, 0.4, 0.7)
         icon:Show()
     else
         icon:Hide()
     end
-    container.icon = icon      
+    container.icon = icon
+
+    -- Detectar si el jugador tiene el item
+    local hasItem = (GetItemCount(itemData.id) or 0) > 0
+    if hasItem then
+        icon:SetVertexColor(1, 1, 1, 1)
+        border:SetVertexColor(1, 0.84, 0)
+    else
+        icon:SetVertexColor(0.3, 0.3, 0.3, 0.6)
+        icon:SetDesaturated(true)
+        border:SetVertexColor(0.4, 0.4, 0.4)
+    end      
               
     local button = CreateFrame("Button", nil, container)          
     button:SetAllPoints()    
@@ -184,9 +194,10 @@ local function CreateItemSlot(parent, itemData, index)
         if container.filled then          
             PickupItem(itemData.id)          
             container.filled = false          
-            icon:SetVertexColor(0.4, 0.4, 0.4, 0.7)
+            icon:SetVertexColor(0.3, 0.3, 0.3, 0.6)
+            icon:SetDesaturated(true)
             bg:SetVertexColor(0.3, 0.3, 0.3, 0.8)          
-            border:SetVertexColor(0.6, 0.6, 0.6)          
+            border:SetVertexColor(0.4, 0.4, 0.4)          
         end          
     end)          
               
@@ -199,6 +210,7 @@ local function CreateItemSlot(parent, itemData, index)
                     slot.icon:SetTexture(GetItemIcon(cursorItem))      
                     slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)      
                     slot.icon:SetVertexColor(1, 1, 1, 1)
+                    slot.icon:SetDesaturated(false)
                     slot.icon:Show()      
                     slot.bg:SetVertexColor(0, 0.5, 0, 0.8)      
                     slot.border:SetVertexColor(0, 1, 0)      
@@ -225,7 +237,7 @@ local function CreateItemSlot(parent, itemData, index)
         if container.filled then    
             border:SetVertexColor(0, 0.8, 0)    
         else    
-            border:SetVertexColor(0.6, 0.6, 0.6)    
+            border:SetVertexColor(0.4, 0.4, 0.4)    
         end    
         GameTooltip:Hide()          
     end)          
@@ -544,6 +556,7 @@ local function ShowRewardSelection(player, groupedRewards, hasItems, missingItem
                 slot.icon:SetTexture(GetItemIcon(slot.itemData.id))    
                 slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)    
                 slot.icon:SetVertexColor(1, 1, 1, 1)
+                slot.icon:SetDesaturated(false)
                 slot.icon:Show()    
                 slot.bg:SetVertexColor(0, 0.5, 0, 0.8)    
                 slot.border:SetVertexColor(0, 1, 0)    
