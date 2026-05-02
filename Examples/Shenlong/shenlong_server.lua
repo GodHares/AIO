@@ -306,19 +306,19 @@ local function OnKillCreature(event, player, killed)
     bossIsSpawned = false    
     groupSelectedRewards = nil    
     
-    -- FIX Bug 1: llamar directamente    
-    local function NotifyClient(target)    
-        handlers.OpenSummonUI(target)    
+    -- Notificar que el boss fue derrotado (sin reabrir la UI)
+    local function NotifyKill(target)    
+        target:SendBroadcastMessage("|cFF00FF00El Dragon ha sido derrotado. Recompensas entregadas!|r")    
     end    
     
     if player:IsInGroup() then    
         local group = player:GetGroup()    
         local groupMembers = group:GetMembers()    
         for _, member in ipairs(groupMembers) do    
-            if member and member:IsInMap(player) then NotifyClient(member) end    
+            if member and member:IsInMap(player) then NotifyKill(member) end    
         end    
     else    
-        NotifyClient(player)    
+        NotifyKill(player)    
     end    
 end    
     
