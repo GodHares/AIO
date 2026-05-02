@@ -418,65 +418,119 @@ local function ShowBossSpawned(player, summonerName, rewardSummary)
     -- Cambiar título de la ventana
     title1:SetText("|cffFFD700Dragon Invocado|r")
     
+    -- Contenedor con scroll para la lista
+    local scrollFrame = CreateFrame("ScrollFrame", nil, content1)
+    scrollFrame:SetPoint("TOPLEFT", 10, -5)
+    scrollFrame:SetPoint("BOTTOMRIGHT", -10, 5)
+    scrollFrame:EnableMouseWheel(true)
+    scrollFrame:SetScript("OnMouseWheel", function(self, delta)
+        local cur = self:GetVerticalScroll()
+        local max = self:GetVerticalScrollRange()
+        local new = cur - (delta * 30)
+        if new < 0 then new = 0 end
+        if new > max then new = max end
+        self:SetVerticalScroll(new)
+    end)
+
+    local scrollChild = CreateFrame("Frame", nil, scrollFrame)
+    scrollChild:SetWidth(scrollFrame:GetWidth() or 500)
+    scrollFrame:SetScrollChild(scrollChild)
+
+    local yOffset = 0
+
     -- Mensaje de invocado por
-    local sub = content1:CreateFontString(nil, "OVERLAY", "GameFontNormal")    
-    sub:SetPoint("TOP", 0, -10)    
+    local sub = scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormal")    
+    sub:SetPoint("TOPLEFT", 10, yOffset)
+    sub:SetPoint("TOPRIGHT", -10, yOffset)
     if summonerName then    
         sub:SetText("Invocado por: |cffFFD700" .. summonerName .. "|r")    
     else    
         sub:SetText("Espera a que sea derrotado.")    
     end    
+    yOffset = yOffset - 30
     
     -- Lista de recompensas
     if rewardSummary and #rewardSummary > 0 then
-        local rewardTitle = content1:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-        rewardTitle:SetPoint("TOP", 0, -40)
-        rewardTitle:SetText("|cffFFD700Recompensas:|r")
+        local rewardTitle = scrollChild:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        rewardTitle:SetPoint("TOPLEFT", 10, yOffset)
+        rewardTitle:SetPoint("TOPRIGHT", -10, yOffset)
+        rewardTitle:SetText("|cffFFD700Recompensas Seleccionadas:|r")
+        yOffset = yOffset - 25
 
-        local yOffset = -65
+        -- Separador
+        local sep = scrollChild:CreateTexture(nil, "ARTWORK")
+        sep:SetHeight(1)
+        sep:SetPoint("TOPLEFT", 20, yOffset)
+        sep:SetPoint("TOPRIGHT", -20, yOffset)
+        sep:SetTexture(1, 0.84, 0, 0.4)
+        yOffset = yOffset - 10
+
         for i, reward in ipairs(rewardSummary) do
-            -- Nombre del grupo
-            local groupLabel = content1:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
-            groupLabel:SetPoint("TOP", 0, yOffset)
+            -- Fila del item con fondo alternado
+            local rowFrame = CreateFrame("Frame", nil, scrollChild)
+            rowFrame:SetHeight(28)
+            rowFrame:SetPoint("TOPLEFT", 15, yOffset)
+            rowFrame:SetPoint("TOPRIGHT", -15, yOffset)
+
+            -- Fondo alternado sutil
+            if i % 2 == 0 then
+                local rowBg = rowFrame:CreateTexture(nil, "BACKGROUND")
+                rowBg:SetAllPoints()
+                rowBg:SetTexture(1, 1, 1, 0.03)
+            end
+
+            -- Nombre del grupo (lado izquierdo)
+            local groupLabel = rowFrame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+            groupLabel:SetPoint("LEFT", 5, 0)
+            groupLabel:SetWidth(140)
+            groupLabel:SetJustifyH("LEFT")
             groupLabel:SetText("|cffAAAA00" .. reward.groupName .. "|r")
-            yOffset = yOffset - 15
 
-            -- Icono + nombre del item
-            local itemFrame = CreateFrame("Frame", nil, content1)
-            itemFrame:SetSize(300, 20)
-            itemFrame:SetPoint("TOP", 0, yOffset)
-
-            local itemIcon = itemFrame:CreateTexture(nil, "OVERLAY")
-            itemIcon:SetSize(18, 18)
-            itemIcon:SetPoint("LEFT", 40, 0)
+            -- Icono del item
+            local itemIcon = rowFrame:CreateTexture(nil, "OVERLAY")
+            itemIcon:SetSize(22, 22)
+            itemIcon:SetPoint("LEFT", 150, 0)
             local iconTex = GetItemIcon(reward.id)
             if iconTex then
                 itemIcon:SetTexture(iconTex)
                 itemIcon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
             end
 
-            local itemLabel = itemFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-            itemLabel:SetPoint("LEFT", itemIcon, "RIGHT", 5, 0)
+            -- Borde de rareza del icono
+            local itemQColor = GetQualityColor(reward.id)
+            local iconBorder = rowFrame:CreateTexture(nil, "ARTWORK")
+            iconBorder:SetSize(24, 24)
+            iconBorder:SetPoint("CENTER", itemIcon, "CENTER")
+            iconBorder:SetTexture("Interface/BUTTONS/WHITE8X8")
+            iconBorder:SetVertexColor(itemQColor.r, itemQColor.g, itemQColor.b, 1)
+            itemIcon:SetDrawLayer("OVERLAY")
+
+            -- Nombre del item
+            local itemLabel = rowFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+            itemLabel:SetPoint("LEFT", itemIcon, "RIGHT", 8, 0)
             local countText = ""
             if reward.count and reward.count > 1 then
-                countText = " x" .. reward.count
+                countText = " |cffAAAAAAx" .. reward.count .. "|r"
             end
-            itemLabel:SetText("|cffFFFFFF" .. reward.name .. countText .. "|r")
+            itemLabel:SetText("|cffFFFFFF" .. reward.name .. "|r" .. countText)
 
             -- Tooltip al pasar el mouse
-            itemFrame:EnableMouse(true)
-            itemFrame:SetScript("OnEnter", function()
-                GameTooltip:SetOwner(itemFrame, "ANCHOR_RIGHT")
+            rowFrame:EnableMouse(true)
+            rowFrame:SetScript("OnEnter", function()
+                GameTooltip:SetOwner(rowFrame, "ANCHOR_RIGHT")
                 GameTooltip:SetHyperlink("item:" .. reward.id .. ":0:0:0:0:0:0:0")
                 GameTooltip:Show()
             end)
-            itemFrame:SetScript("OnLeave", function()
+            rowFrame:SetScript("OnLeave", function()
                 GameTooltip:Hide()
             end)
 
-            yOffset = yOffset - 22
+            yOffset = yOffset - 30
         end
     end
+
+    -- Ajustar alto del scrollChild
+    scrollChild:SetHeight(math.abs(yOffset) + 10)
     
     frame1:Show()    
 end    
