@@ -94,7 +94,7 @@ frame2:Hide()
 
 local title2 = frame2:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")          
 title2:SetPoint("TOP", 0, -8)          
-title2:SetText("|cffFFD700Mesa de Invocación del Dragon|r")          
+title2:SetText("|cffFFD700Recompensas del Dragon|r")          
 
 local closeBtn2 = CreateFrame("Button", nil, frame2, "UIPanelCloseButton")          
 closeBtn2:SetPoint("TOPRIGHT", -5, -5)          
