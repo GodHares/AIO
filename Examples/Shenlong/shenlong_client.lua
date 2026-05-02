@@ -181,13 +181,13 @@ local function CreateItemSlot(parent, itemData, index)
     local qColor = GetQualityColor(itemData.id)
     container.qualityColor = qColor
 
-    local qualityBorder = container:CreateTexture(nil, "ARTWORK", nil, 0)
+    local qualityBorder = container:CreateTexture(nil, "ARTWORK")
     qualityBorder:SetSize(46, 46)
     qualityBorder:SetPoint("CENTER")
     qualityBorder:SetTexture("Interface/BUTTONS/WHITE8X8")
     container.qualityBorder = qualityBorder
               
-    local icon = container:CreateTexture(nil, "ARTWORK", nil, 1)          
+    local icon = container:CreateTexture(nil, "OVERLAY")          
     icon:SetSize(42, 42)          
     icon:SetPoint("CENTER")    
     local itemIcon = GetItemIcon(itemData.id)
@@ -305,7 +305,7 @@ local function CreateRewardCircle(parent, rewardData, index, onClick)
 
     -- Borde de rareza (rectángulo sólido detrás del icono)
     local rqColor = rewardData.id and GetQualityColor(rewardData.id) or {r = 0.6, g = 0.6, b = 0.6}
-    local rBorder = circle:CreateTexture(nil, "ARTWORK", nil, 0)
+    local rBorder = circle:CreateTexture(nil, "ARTWORK")
     rBorder:SetSize(40, 40)
     rBorder:SetPoint("CENTER")
     rBorder:SetTexture("Interface/BUTTONS/WHITE8X8")
@@ -313,7 +313,7 @@ local function CreateRewardCircle(parent, rewardData, index, onClick)
     circle.qualityBorder = rBorder
     circle.qualityColor = rqColor    
     
-    local icon = circle:CreateTexture(nil, "ARTWORK", nil, 1)    
+    local icon = circle:CreateTexture(nil, "OVERLAY")    
     icon:SetSize(36, 36)    
     icon:SetPoint("CENTER")    
     circle.icon = icon    
