@@ -223,12 +223,15 @@ local function CreateItemSlot(parent, itemData, index)
               
     container:SetScript("OnEnter", function()          
         GameTooltip:SetOwner(container, "ANCHOR_RIGHT")          
+        GameTooltip:SetHyperlink("item:" .. itemData.id .. ":0:0:0:0:0:0:0")
         if container.filled then          
             border:SetVertexColor(0, 1, 0)          
-            GameTooltip:SetText("|cFF00FF00" .. itemData.name .. "|r\nItem colocado correctamente")          
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine("|cFF00FF00Item colocado correctamente|r")
         else          
             border:SetVertexColor(1, 0.8, 0)          
-            GameTooltip:SetText("|cFFFFCC00" .. itemData.name .. "|r\nArrastra el item aquí")          
+            GameTooltip:AddLine(" ")
+            GameTooltip:AddLine("|cFFFFCC00Arrastra el item aquí|r")
         end          
         GameTooltip:Show()          
     end)          
@@ -284,14 +287,20 @@ local function CreateRewardCircle(parent, rewardData, index, onClick)
     
     circle:SetScript("OnEnter", function()    
         GameTooltip:SetOwner(circle, "ANCHOR_RIGHT")    
-        local name = rewardData.name or ("Item " .. (rewardData.id or "?"))    
-        if circle.selected then    
-            GameTooltip:SetText("|cFF00FFFF" .. name .. "|r\n|cFF00FF00Seleccionado|r")    
-        else    
-            GameTooltip:SetText("|cFFFFCC00" .. name .. "|r\nClick para seleccionar")    
-        end    
+        if rewardData.id then
+            GameTooltip:SetHyperlink("item:" .. rewardData.id .. ":0:0:0:0:0:0:0")
+        else
+            local name = rewardData.name or ("Item ?")
+            GameTooltip:SetText("|cFFFFCC00" .. name .. "|r")
+        end
         if rewardData.count and rewardData.count > 1 then    
+            GameTooltip:AddLine(" ")
             GameTooltip:AddLine("Cantidad: " .. rewardData.count, 1, 1, 1)    
+        end    
+        if circle.selected then    
+            GameTooltip:AddLine("|cFF00FF00Seleccionado|r")
+        else    
+            GameTooltip:AddLine("|cFFFFCC00Click para seleccionar|r")
         end    
         GameTooltip:Show()    
         if not circle.selected then    
