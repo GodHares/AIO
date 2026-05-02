@@ -160,7 +160,15 @@ local function CreateItemSlot(parent, itemData, index)
     local icon = container:CreateTexture(nil, "OVERLAY")          
     icon:SetSize(42, 42)          
     icon:SetPoint("CENTER")    
-    icon:Hide()          
+    local itemIcon = GetItemIcon(itemData.id)
+    if itemIcon then
+        icon:SetTexture(itemIcon)
+        icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)
+        icon:SetVertexColor(0.4, 0.4, 0.4, 0.7)
+        icon:Show()
+    else
+        icon:Hide()
+    end
     container.icon = icon      
               
     local button = CreateFrame("Button", nil, container)          
@@ -176,7 +184,7 @@ local function CreateItemSlot(parent, itemData, index)
         if container.filled then          
             PickupItem(itemData.id)          
             container.filled = false          
-            icon:Hide()          
+            icon:SetVertexColor(0.4, 0.4, 0.4, 0.7)
             bg:SetVertexColor(0.3, 0.3, 0.3, 0.8)          
             border:SetVertexColor(0.6, 0.6, 0.6)          
         end          
@@ -190,6 +198,7 @@ local function CreateItemSlot(parent, itemData, index)
                     slot.filled = true      
                     slot.icon:SetTexture(GetItemIcon(cursorItem))      
                     slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)      
+                    slot.icon:SetVertexColor(1, 1, 1, 1)
                     slot.icon:Show()      
                     slot.bg:SetVertexColor(0, 0.5, 0, 0.8)      
                     slot.border:SetVertexColor(0, 1, 0)      
@@ -534,6 +543,7 @@ local function ShowRewardSelection(player, groupedRewards, hasItems, missingItem
                 slot.filled = true    
                 slot.icon:SetTexture(GetItemIcon(slot.itemData.id))    
                 slot.icon:SetTexCoord(0.1, 0.9, 0.1, 0.9)    
+                slot.icon:SetVertexColor(1, 1, 1, 1)
                 slot.icon:Show()    
                 slot.bg:SetVertexColor(0, 0.5, 0, 0.8)    
                 slot.border:SetVertexColor(0, 1, 0)    
