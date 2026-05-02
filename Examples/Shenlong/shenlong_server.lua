@@ -270,22 +270,44 @@ local function OnKillCreature(event, player, killed)
         return    
     end    
     
-    local function DistributeRewards(target)    
-        for groupIndex, itemIndex in pairs(selectedRewards) do    
-            local group = REWARD_GROUPS[groupIndex]    
-            if group and group.items[itemIndex] then    
-                local reward = group.items[itemIndex]    
-                if not IsValidItem(reward.id) then    
-                    player:SendBroadcastMessage("Error: Recompensa no existe.")    
-                    return false    
-                end    
-                target:AddItem(reward.id, reward.count)    
-                target:SendBroadcastMessage("Recompensa recibida: " .. (reward.name or "item"))    
+    -- Recopilar items de recompensa
+    local rewardItems = {}
+    for groupIndex, itemIndex in pairs(selectedRewards) do    
+        local group = REWARD_GROUPS[groupIndex]    
+        if group and group.items[itemIndex] then    
+            local reward = group.items[itemIndex]    
+            if not IsValidItem(reward.id) then    
+                player:SendBroadcastMessage("Error: Recompensa no existe.")    
+                return    
             end    
+            table.insert(rewardItems, {id = reward.id, count = reward.count})
         end    
-        return true    
     end    
-    
+
+    local rewardCount = #rewardItems
+    local mailSubject = "Recompensas del Dragon"
+
+    local function SendRewardMail(target)
+        local targetName = target:GetName()
+        local mailBody = "Estos son tus " .. rewardCount .. " Recompensas, espero que puedas volver a mi mortal " .. targetName .. "."
+        local receiverGUID = target:GetGUIDLow()
+
+        -- SendMail(subject, text, receiverGUIDLow, senderGUIDLow, stationary, delay, money, cod, entry1, amount1, entry2, amount2, ...)
+        -- Construir argumentos dinámicamente según cantidad de items
+        if rewardCount == 1 then
+            SendMail(mailSubject, mailBody, receiverGUID, 0, 61, 0, 0, 0, rewardItems[1].id, rewardItems[1].count)
+        elseif rewardCount == 2 then
+            SendMail(mailSubject, mailBody, receiverGUID, 0, 61, 0, 0, 0, rewardItems[1].id, rewardItems[1].count, rewardItems[2].id, rewardItems[2].count)
+        elseif rewardCount == 3 then
+            SendMail(mailSubject, mailBody, receiverGUID, 0, 61, 0, 0, 0, rewardItems[1].id, rewardItems[1].count, rewardItems[2].id, rewardItems[2].count, rewardItems[3].id, rewardItems[3].count)
+        elseif rewardCount == 4 then
+            SendMail(mailSubject, mailBody, receiverGUID, 0, 61, 0, 0, 0, rewardItems[1].id, rewardItems[1].count, rewardItems[2].id, rewardItems[2].count, rewardItems[3].id, rewardItems[3].count, rewardItems[4].id, rewardItems[4].count)
+        elseif rewardCount >= 5 then
+            SendMail(mailSubject, mailBody, receiverGUID, 0, 61, 0, 0, 0, rewardItems[1].id, rewardItems[1].count, rewardItems[2].id, rewardItems[2].count, rewardItems[3].id, rewardItems[3].count, rewardItems[4].id, rewardItems[4].count, rewardItems[5].id, rewardItems[5].count)
+        end
+        target:SendBroadcastMessage("|cFF00FF00Tus recompensas han sido enviadas a tu correo!|r")
+    end
+
     if player:IsInGroup() then    
         local group = player:GetGroup()    
         local groupMembers = group:GetMembers()    
@@ -295,11 +317,11 @@ local function OnKillCreature(event, player, killed)
         end    
         for _, member in ipairs(groupMembers) do    
             if member and member:IsInMap(player) then    
-                if not DistributeRewards(member) then return end    
+                SendRewardMail(member)
             end    
         end    
     else    
-        if not DistributeRewards(player) then return end    
+        SendRewardMail(player)
     end    
     
     killed:DespawnOrUnsummon()    
