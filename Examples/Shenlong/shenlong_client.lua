@@ -224,14 +224,15 @@ local function CreateItemSlot(parent, itemData, index)
     button:SetScript("OnEnter", function()          
         GameTooltip:SetOwner(container, "ANCHOR_RIGHT")          
         GameTooltip:SetHyperlink("item:" .. itemData.id .. ":0:0:0:0:0:0:0")
+        local hasItem = (GetItemCount(itemData.id) or 0) > 0
         if container.filled then          
             border:SetVertexColor(0, 1, 0)          
-            GameTooltip:AddLine(" ")
-            GameTooltip:AddLine("|cFF00FF00Item colocado correctamente|r")
+        elseif hasItem then
+            border:SetVertexColor(1, 0.84, 0)
         else          
-            border:SetVertexColor(1, 0.8, 0)          
+            border:SetVertexColor(0.4, 0.4, 0.4)          
             GameTooltip:AddLine(" ")
-            GameTooltip:AddLine("|cFFFFCC00Arrastra el item aquí|r")
+            GameTooltip:AddLine("|cFFFF4444No tienes este item|r")
         end          
         GameTooltip:Show()          
     end)          
