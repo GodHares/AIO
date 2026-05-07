@@ -20,7 +20,9 @@ local PAYLOAD_SEP   = "<<CLANCYSEP>>"
 local DEBUG         = true
 
 local FRAME_WIDTH       = 920
-local FRAME_HEIGHT      = 686
+-- 716 = 686 anterior + 30 px que se añaden al configPanel para meter
+-- la fila del selector de tipo (item / honor / arena / gold).
+local FRAME_HEIGHT      = 716
 local NUM_VISIBLE_ROWS  = 5
 local ROW_HEIGHT        = 36
 local ROW_GAP           = 2
@@ -148,24 +150,94 @@ local function SplitLines(text)
     return lines
 end
 
+-- Ids "mágicos" reservados para premios que no son items reales.
+-- Deben coincidir con los del server: REWARD_HONOR_ID / REWARD_ARENA_ID
+-- / REWARD_GOLD_ID. Son uint32 fuera del rango de items reales de WoW
+-- 3.3.5 (max ~80000).
+local REWARD_HONOR_ID = 4000000001
+local REWARD_ARENA_ID = 4000000002
+local REWARD_GOLD_ID  = 4000000003
+
+local function GetRewardKindFromEntry(entry)
+    entry = tonumber(entry) or 0
+    if entry == REWARD_HONOR_ID then return "honor" end
+    if entry == REWARD_ARENA_ID then return "arena" end
+    if entry == REWARD_GOLD_ID  then return "gold"  end
+    return "item"
+end
+
+local function NormalizeKind(kind)
+    kind = tostring(kind or "item"):lower()
+    if kind ~= "item" and kind ~= "honor" and kind ~= "arena" and kind ~= "gold" then
+        kind = "item"
+    end
+    return kind
+end
+
+local function GetKindIcon(kind)
+    if kind == "honor" then
+        return "Interface\\Icons\\Achievement_PVP_A_A"
+    elseif kind == "arena" then
+        return "Interface\\Icons\\Achievement_arena_5v5_2"
+    elseif kind == "gold" then
+        return "Interface\\Icons\\INV_Misc_Coin_01"
+    end
+    return nil
+end
+
+local function GetKindLabel(kind)
+    if kind == "honor" then return "Puntos de honor" end
+    if kind == "arena" then return "Puntos de arena" end
+    if kind == "gold"  then return "Oro"             end
+    return nil
+end
+
 local function ParseStockItems(itemsText)
     local result = {}
 
     for _, line in ipairs(SplitLines(itemsText)) do
-        local entry, amount, chance, name = string.match(
+        -- Formato nuevo: <entry>|<kind>|<amount>|<chance>|<name>
+        local entry, kind, amount, chance, name = string.match(
             line,
-            "^(%d+)%s+x(%d+)%s+%[(%d+)%%%]%s+%-%s+(.+)$"
+            "^(%d+)|(%w+)|(%d+)|(%d+)|(.+)$"
         )
 
         if not entry then
+            -- Compatibilidad con el formato antiguo:
+            -- "<entry> x<amount> [<chance>%] - <name>".
+            entry, amount, chance, name = string.match(
+                line,
+                "^(%d+)%s+x(%d+)%s+%[(%d+)%%%]%s+%-%s+(.+)$"
+            )
+            kind = "item"
+        end
+
+        if not entry then
             entry, amount = string.match(line, "^(%d+)%s+x(%d+)")
+            kind = "item"
             chance = "100"
             name = line
         end
 
         if entry then
+            local entryNum = tonumber(entry) or 0
+            local resolvedKind = NormalizeKind(kind)
+
+            -- Si el server (un cliente viejo) solo nos manda el entry
+            -- pero la entry coincide con un id mágico, deducimos el kind.
+            if resolvedKind == "item" then
+                local deduced = GetRewardKindFromEntry(entryNum)
+                if deduced ~= "item" then
+                    resolvedKind = deduced
+                    if not name or name == "" then
+                        name = GetKindLabel(deduced)
+                    end
+                end
+            end
+
             table.insert(result, {
-                entry  = tonumber(entry) or 0,
+                entry  = entryNum,
+                kind   = resolvedKind,
                 amount = tonumber(amount) or 0,
                 chance = tonumber(chance) or 100,
                 name   = tostring(name or ("Item " .. tostring(entry))),
@@ -197,6 +269,11 @@ end
 local function GetItemIconPath(entry)
     entry = tonumber(entry) or 0
 
+    -- Para premios que no son items reales (honor / arena / gold) usamos
+    -- iconos PVP / dinero en lugar de buscar en GetItemInfo.
+    local kindIcon = GetKindIcon(GetRewardKindFromEntry(entry))
+    if kindIcon then return kindIcon end
+
     if entry > 0 then
         local _, _, _, _, _, _, _, _, _, texture = GetItemInfo(entry)
 
@@ -210,6 +287,13 @@ local function GetItemQualityColorCode(entry)
     entry = tonumber(entry) or 0
 
     if entry <= 0 then return "|cffffffff" end
+
+    -- Honor / arena / gold no tienen "quality"; les damos un color fijo
+    -- coherente con sus iconos.
+    local kind = GetRewardKindFromEntry(entry)
+    if kind == "honor" then return "|cffff8888" end
+    if kind == "arena" then return "|cff66aaff" end
+    if kind == "gold"  then return "|cffffd34a" end
 
     local _, _, quality = GetItemInfo(entry)
 
@@ -285,6 +369,93 @@ local function MakeSectionTitle(panel, text)
     stripe:SetHeight(1)
 
     return title
+end
+
+------------------------------------------------------------
+-- Pill button: pastilla horizontal usada para el selector de tipo
+-- de premio (item / honor / arena / gold). Plana, sin edgeFile, para
+-- que su contorno NO pueda salirse del frame contenedor.
+------------------------------------------------------------
+
+local function MakeTypePill(parent, label, x, y, width, kind)
+    local btn = CreateFrame("Button", nil, parent)
+    btn:SetWidth(width)
+    btn:SetHeight(22)
+    btn:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
+
+    btn:SetBackdrop({
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
+    })
+    btn:SetBackdropColor(C_BG_INPUT[1], C_BG_INPUT[2], C_BG_INPUT[3], 0.9)
+
+    local function MakeEdge(side)
+        local tex = SolidTexture(btn, "OVERLAY", C_GOLD_DARK, 1)
+        if side == "top" then
+            tex:SetPoint("TOPLEFT",  btn, "TOPLEFT",  0, 0)
+            tex:SetPoint("TOPRIGHT", btn, "TOPRIGHT", 0, 0)
+            tex:SetHeight(1)
+        elseif side == "bottom" then
+            tex:SetPoint("BOTTOMLEFT",  btn, "BOTTOMLEFT",  0, 0)
+            tex:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
+            tex:SetHeight(1)
+        elseif side == "left" then
+            tex:SetPoint("TOPLEFT",    btn, "TOPLEFT",    0, 0)
+            tex:SetPoint("BOTTOMLEFT", btn, "BOTTOMLEFT", 0, 0)
+            tex:SetWidth(1)
+        elseif side == "right" then
+            tex:SetPoint("TOPRIGHT",    btn, "TOPRIGHT",    0, 0)
+            tex:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 0, 0)
+            tex:SetWidth(1)
+        end
+        return tex
+    end
+
+    btn.borderTop    = MakeEdge("top")
+    btn.borderBottom = MakeEdge("bottom")
+    btn.borderLeft   = MakeEdge("left")
+    btn.borderRight  = MakeEdge("right")
+
+    btn.label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    btn.label:SetPoint("CENTER", btn, "CENTER", 0, 0)
+    btn.label:SetText(label)
+    btn.label:SetTextColor(0.85, 0.65, 0.18)
+
+    btn.kind = kind
+    btn.selected = false
+
+    btn.SetSelected = function(self, value)
+        self.selected = value and true or false
+
+        if self.selected then
+            self:SetBackdropColor(C_GOLD_DARK[1] * 0.55, C_GOLD_DARK[2] * 0.55, C_GOLD_DARK[3] * 0.55, 0.95)
+            self.borderTop:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
+            self.borderBottom:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
+            self.borderLeft:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
+            self.borderRight:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
+            self.label:SetTextColor(1, 1, 1)
+        else
+            self:SetBackdropColor(C_BG_INPUT[1], C_BG_INPUT[2], C_BG_INPUT[3], 0.9)
+            self.borderTop:SetVertexColor(C_GOLD_DARK[1], C_GOLD_DARK[2], C_GOLD_DARK[3], 1)
+            self.borderBottom:SetVertexColor(C_GOLD_DARK[1], C_GOLD_DARK[2], C_GOLD_DARK[3], 1)
+            self.borderLeft:SetVertexColor(C_GOLD_DARK[1], C_GOLD_DARK[2], C_GOLD_DARK[3], 1)
+            self.borderRight:SetVertexColor(C_GOLD_DARK[1], C_GOLD_DARK[2], C_GOLD_DARK[3], 1)
+            self.label:SetTextColor(0.85, 0.65, 0.18)
+        end
+    end
+
+    btn:SetScript("OnEnter", function(self)
+        if not self.selected then
+            self.label:SetTextColor(1, 0.95, 0.55)
+        end
+    end)
+    btn:SetScript("OnLeave", function(self)
+        if not self.selected then
+            self.label:SetTextColor(0.85, 0.65, 0.18)
+        end
+    end)
+
+    return btn
 end
 
 ------------------------------------------------------------
@@ -587,16 +758,53 @@ local function UpdateSelectedCard()
         return
     end
 
-    local color = GetItemQualityColorCode(item.entry)
+    local kind   = item.kind or GetRewardKindFromEntry(item.entry)
+    local color  = GetItemQualityColorCode(item.entry)
+    local label  = item.name
+
+    if kind ~= "item" then
+        label = GetKindLabel(kind) or label
+    end
 
     UI.selectedIcon:SetTexture(GetItemIconPath(item.entry))
-    UI.selectedItemId:SetText(tostring(item.entry))
-    UI.selectedName:SetText(color .. tostring(item.name) .. "|r")
-    UI.selectedAmount:SetText(tostring(item.amount))
+    if kind == "item" then
+        UI.selectedItemId:SetText(tostring(item.entry))
+    else
+        UI.selectedItemId:SetText("—")
+    end
+    UI.selectedName:SetText(color .. tostring(label) .. "|r")
+
+    if kind == "gold" then
+        UI.selectedAmount:SetText(tostring(item.amount) .. "g")
+    else
+        UI.selectedAmount:SetText(tostring(item.amount))
+    end
+
     UI.selectedChance:SetText(CC_GREEN_PCT .. tostring(item.chance) .. "%|r")
     UI.selectedDuration:SetText(
         tostring(UI.durationBox and UI.durationBox:GetText() or "-") .. " min."
     )
+end
+
+local function SyncTypePillsForKind(kind)
+    if not UI.typePills then return end
+    UI.selectedType = kind
+    for _, pill in ipairs(UI.typePills) do
+        pill:SetSelected(pill.kind == kind)
+    end
+
+    if UI.itemBox then
+        if kind == "item" then
+            UI.itemBox:EnableMouse(true)
+            UI.itemBox:EnableKeyboard(true)
+            UI.itemBox:SetTextColor(1, 1, 1)
+        else
+            UI.itemBox:ClearFocus()
+            UI.itemBox:EnableMouse(false)
+            UI.itemBox:EnableKeyboard(false)
+            UI.itemBox:SetTextColor(0.4, 0.4, 0.4)
+        end
+    end
 end
 
 local function SelectItem(item)
@@ -604,7 +812,16 @@ local function SelectItem(item)
 
     selectedItemEntry = item.entry
 
-    if UI.itemBox then UI.itemBox:SetText(tostring(item.entry)) end
+    local kind = item.kind or GetRewardKindFromEntry(item.entry)
+    SyncTypePillsForKind(kind)
+
+    if UI.itemBox then
+        if kind == "item" then
+            UI.itemBox:SetText(tostring(item.entry))
+        else
+            UI.itemBox:SetText("")
+        end
+    end
     if UI.countBox then UI.countBox:SetText(tostring(item.amount)) end
     if UI.chanceBox then UI.chanceBox:SetText(tostring(item.chance)) end
 
@@ -630,13 +847,31 @@ local function RefreshRows()
             row.item = item
             row:Show()
 
+            local kind  = item.kind or GetRewardKindFromEntry(item.entry)
             local color = GetItemQualityColorCode(item.entry)
+            local label = item.name
+
+            if kind ~= "item" then
+                label = GetKindLabel(kind) or label
+            end
 
             row.indexText:SetText(tostring(itemIndex))
             row.icon:SetTexture(GetItemIconPath(item.entry))
-            row.entryText:SetText(tostring(item.entry))
-            row.nameText:SetText(color .. tostring(item.name) .. "|r")
-            row.amountText:SetText(tostring(item.amount))
+
+            if kind == "item" then
+                row.entryText:SetText(tostring(item.entry))
+            else
+                row.entryText:SetText("—")
+            end
+
+            row.nameText:SetText(color .. tostring(label) .. "|r")
+
+            if kind == "gold" then
+                row.amountText:SetText(tostring(item.amount) .. "g")
+            else
+                row.amountText:SetText(tostring(item.amount))
+            end
+
             row.chanceText:SetText(CC_GREEN_PCT .. tostring(item.chance) .. "%|r")
             row.durationText:SetText(
                 tostring(UI.durationBox and UI.durationBox:GetText() or "-")
@@ -829,11 +1064,25 @@ local function CreateListRow(parent, index)
         if self.item then SelectItem(self.item) end
     end)
     row:SetScript("OnEnter", function(self)
-        if self.item then
-            GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        if not self.item then return end
+
+        local kind = self.item.kind or GetRewardKindFromEntry(self.item.entry)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+
+        if kind == "item" then
             GameTooltip:SetHyperlink("item:" .. tostring(self.item.entry))
-            GameTooltip:Show()
+        else
+            local label = GetKindLabel(kind) or "Premio"
+            GameTooltip:SetText(label, 1, 1, 1)
+            if kind == "gold" then
+                GameTooltip:AddLine(tostring(self.item.amount) .. "g", 1, 0.85, 0.2, true)
+            else
+                GameTooltip:AddLine(tostring(self.item.amount) .. " puntos", 0.85, 0.85, 0.85, true)
+            end
+            GameTooltip:AddLine("Chance: " .. tostring(self.item.chance) .. "%", 0.7, 0.95, 0.6, true)
         end
+
+        GameTooltip:Show()
     end)
     row:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
@@ -961,14 +1210,69 @@ local function CreateWindow()
     -- Configuración.
     ------------------------------------------------------------
 
-    local configPanel = MakePanel(frame, 24, -120, FRAME_WIDTH - 48, 158)
+    -- 188 = 158 anterior + 30 px que se añaden por la fila del selector
+    -- de tipo (item / honor / arena / gold). Todo lo que está dentro
+    -- (inputPanel, botones) se baja 30 px respecto al diseño anterior.
+    local configPanel = MakePanel(frame, 24, -120, FRAME_WIDTH - 48, 188)
     UI.configPanel = configPanel
 
     MakeSectionTitle(configPanel, "CONFIGURACIÓN")
 
+    -- Selector de tipo de premio. Las 4 pastillas se reparten de forma
+    -- uniforme entre los bordes interiores del configPanel.
+    UI.selectedType = "item"
+    UI.typePills    = {}
+
+    local pillKinds = {
+        { kind = "item",  label = "Item"  },
+        { kind = "honor", label = "Honor" },
+        { kind = "arena", label = "Arena" },
+        { kind = "gold",  label = "Oro"   },
+    }
+
+    local pillRowLeft  = 14
+    local pillRowRight = (FRAME_WIDTH - 48) - 14
+    local pillRowWidth = pillRowRight - pillRowLeft
+    local pillGap      = 8
+    local pillW        = math.floor((pillRowWidth - pillGap * (#pillKinds - 1)) / #pillKinds)
+
+    local function SelectType(kind)
+        UI.selectedType = kind
+        for _, pill in ipairs(UI.typePills) do
+            pill:SetSelected(pill.kind == kind)
+        end
+
+        -- Cuando el tipo no es "item", el editbox de Item ID se vuelve
+        -- inerte (lo bloqueamos a teclado/ratón y lo grisamos) porque
+        -- el id mágico lo gestiona el server por tipo.
+        if UI.itemBox then
+            if kind == "item" then
+                UI.itemBox:EnableMouse(true)
+                UI.itemBox:EnableKeyboard(true)
+                UI.itemBox:SetTextColor(1, 1, 1)
+            else
+                UI.itemBox:ClearFocus()
+                UI.itemBox:SetText("")
+                UI.itemBox:EnableMouse(false)
+                UI.itemBox:EnableKeyboard(false)
+                UI.itemBox:SetTextColor(0.4, 0.4, 0.4)
+            end
+        end
+    end
+
+    for i, info in ipairs(pillKinds) do
+        local x = pillRowLeft + (i - 1) * (pillW + pillGap)
+        local pill = MakeTypePill(configPanel, info.label, x, -30, pillW, info.kind)
+        pill:SetScript("OnClick", function()
+            SelectType(info.kind)
+        end)
+        pill:SetSelected(info.kind == UI.selectedType)
+        UI.typePills[i] = pill
+    end
+
     local inputPanel = CreateFrame("Frame", nil, configPanel)
-    inputPanel:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 14, -32)
-    inputPanel:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -14, -32)
+    inputPanel:SetPoint("TOPLEFT", configPanel, "TOPLEFT", 14, -62)
+    inputPanel:SetPoint("TOPRIGHT", configPanel, "TOPRIGHT", -14, -62)
     inputPanel:SetHeight(60)
     ApplyBackdrop(inputPanel, C_BG_INPUT, 0.95, C_GOLD_DARK, 12)
 
@@ -984,25 +1288,38 @@ local function CreateWindow()
 
     -- Botones de acción: 7 botones de 110 px con 6 px de gap caben
     -- limpios dentro del configPanel sin desbordarse.
-    local btnY = -100
+    local btnY = -130
     local btnW = 110
     local function btnX(idx) return 14 + idx * (btnW + 6) end
 
+    -- Resuelve la entry a usar al añadir un premio. Para tipos
+    -- distintos de item, el server espera el id mágico correspondiente.
+    local function ResolveEntryForAdd()
+        local kind = UI.selectedType or "item"
+        if kind == "honor" then return REWARD_HONOR_ID end
+        if kind == "arena" then return REWARD_ARENA_ID end
+        if kind == "gold"  then return REWARD_GOLD_ID  end
+        return tonumber(UI.itemBox:GetText()) or 0
+    end
+
     UI.addButton = MakeButton(configPanel, "Añadir", "plus", btnX(0), btnY, btnW, false, function()
-        local entry  = tonumber(UI.itemBox:GetText()) or 0
+        local entry  = ResolveEntryForAdd()
         local amount = tonumber(UI.countBox:GetText()) or 0
         local chance = tonumber(UI.chanceBox:GetText()) or 100
-        AIO.Handle(HANDLER, "AddItem", entry, amount, chance)
+        local kind   = UI.selectedType or "item"
+        AIO.Handle(HANDLER, "AddItem", entry, amount, chance, kind)
     end)
 
     UI.removeButton = MakeButton(configPanel, "Quitar", "minus", btnX(1), btnY, btnW, false, function()
-        local entry  = tonumber(UI.itemBox:GetText()) or selectedItemEntry or 0
+        local entry  = ResolveEntryForAdd()
+        if entry <= 0 then entry = selectedItemEntry or 0 end
         local amount = tonumber(UI.countBox:GetText()) or 0
         AIO.Handle(HANDLER, "RemoveItem", entry, amount)
     end)
 
     UI.deleteButton = MakeButton(configPanel, "Eliminar", "trash", btnX(2), btnY, btnW, false, function()
-        local entry = tonumber(UI.itemBox:GetText()) or selectedItemEntry or 0
+        local entry = ResolveEntryForAdd()
+        if entry <= 0 then entry = selectedItemEntry or 0 end
         AIO.Handle(HANDLER, "RemoveItem", entry, 0)
     end)
 
@@ -1027,7 +1344,7 @@ local function CreateWindow()
     -- Item seleccionado.
     ------------------------------------------------------------
 
-    local selectedPanel = MakePanel(frame, 24, -286, FRAME_WIDTH - 48, 108)
+    local selectedPanel = MakePanel(frame, 24, -316, FRAME_WIDTH - 48, 108)
     UI.selectedPanel = selectedPanel
 
     MakeSectionTitle(selectedPanel, "ITEM SELECCIONADO")
@@ -1084,7 +1401,7 @@ local function CreateWindow()
     -- padding) = 274 px. Antes era 248 y la última fila se salía 22 px
     -- por debajo del borde dorado del panel (lo que el usuario veía como
     -- 'el limite se está saliendo' en la fila seleccionada).
-    local listPanel = MakePanel(frame, 24, -400, FRAME_WIDTH - 48, 274)
+    local listPanel = MakePanel(frame, 24, -430, FRAME_WIDTH - 48, 274)
     UI.listPanel = listPanel
 
     UI.listTitle = listPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")

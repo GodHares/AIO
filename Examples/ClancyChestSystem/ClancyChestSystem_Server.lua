@@ -162,6 +162,60 @@ local function ClampChance(value)
     return chance
 end
 
+------------------------------------------------------------
+-- Tipos de premio (item / honor / arena / gold).
+--
+-- El stock se guarda en `custom_clancy_chest_stock` con el campo
+-- `item_entry` (UNSIGNED INT). Para no requerir migración de schema,
+-- los premios que no son items se almacenan con un id "mágico"
+-- reservado fuera del rango de items reales:
+--   honor -> 4000000001
+--   arena -> 4000000002
+--   gold  -> 4000000003
+--
+-- El campo `amount` significa:
+--   item  -> stack del item
+--   honor -> puntos de honor a entregar
+--   arena -> puntos de arena a entregar
+--   gold  -> oro entero (5 = 5g). Internamente se multiplica por
+--            10000 para pasar a cobre con ModifyMoney.
+------------------------------------------------------------
+
+local REWARD_HONOR_ID = 4000000001
+local REWARD_ARENA_ID = 4000000002
+local REWARD_GOLD_ID  = 4000000003
+
+local VALID_KINDS = {
+    item  = true,
+    honor = true,
+    arena = true,
+    gold  = true,
+}
+
+local function NormalizeKind(value)
+    local kind = tostring(value or "item"):lower()
+
+    if not VALID_KINDS[kind] then
+        return "item"
+    end
+
+    return kind
+end
+
+local function GetRewardKind(entry)
+    if entry == REWARD_HONOR_ID then return "honor" end
+    if entry == REWARD_ARENA_ID then return "arena" end
+    if entry == REWARD_GOLD_ID  then return "gold"  end
+    return "item"
+end
+
+local function GetKindMagicId(kind)
+    if kind == "honor" then return REWARD_HONOR_ID end
+    if kind == "arena" then return REWARD_ARENA_ID end
+    if kind == "gold"  then return REWARD_GOLD_ID  end
+    return nil
+end
+
 local function SafeWorldMessage(message)
     D("WorldMessage: " .. tostring(message))
 
@@ -265,6 +319,14 @@ local function GetItemName(itemEntry)
     end
 
     return "Item " .. tostring(itemEntry)
+end
+
+local function GetRewardName(entry)
+    local kind = GetRewardKind(entry)
+    if kind == "honor" then return "Puntos de honor" end
+    if kind == "arena" then return "Puntos de arena" end
+    if kind == "gold"  then return "Oro"             end
+    return GetItemName(entry)
 end
 
 local function PersistStockItem(itemEntry)
@@ -451,10 +513,11 @@ local function GetSortedStock()
 
         if amount > 0 then
             table.insert(list, {
-                entry = entry,
+                entry  = entry,
+                kind   = GetRewardKind(entry),
                 amount = amount,
                 chance = chance,
-                name = GetItemName(entry)
+                name   = GetRewardName(entry)
             })
         end
     end
@@ -538,14 +601,16 @@ local function BuildSnapshotPayload()
     local lines = {}
 
     for _, item in ipairs(stock) do
+        -- Formato nuevo: entry|kind|amount|chance|name
+        -- El cliente acepta también el formato antiguo
+        -- "<entry> x<amount> [<chance>%] - <name>" para compatibilidad,
+        -- pero ya no lo emitimos.
         table.insert(
             lines,
-            tostring(item.entry) ..
-            " x" ..
-            tostring(item.amount) ..
-            " [" ..
-            tostring(item.chance or 100) ..
-            "%] - " ..
+            tostring(item.entry)         .. "|" ..
+            tostring(item.kind or "item") .. "|" ..
+            tostring(item.amount)        .. "|" ..
+            tostring(item.chance or 100) .. "|" ..
             tostring(item.name or "")
         )
     end
@@ -889,18 +954,39 @@ local function TryDespawnChest(gameObject)
     end
 end
 
+-- Devuelve los premios entregados al estado anterior cuando uno de los
+-- AddItem falla por inventario lleno. Soporta los 4 tipos de premio.
+local function RollbackGranted(player, granted)
+    for i = #granted, 1, -1 do
+        local g = granted[i]
+
+        if g.kind == "item" then
+            player:RemoveItem(g.entry, g.amount)
+        elseif g.kind == "honor" then
+            player:ModifyHonorPoints(-g.amount)
+        elseif g.kind == "arena" then
+            player:ModifyArenaPoints(-g.amount)
+        elseif g.kind == "gold" then
+            player:ModifyMoney(-(g.amount * 10000))
+        end
+    end
+end
+
 local function GrantStockToPlayer(player)
     local stock = GetSortedStock()
     local granted = {}
     local wonAnyItem = false
 
     for _, item in ipairs(stock) do
+        local kind = item.kind or "item"
         local chance = ClampChance(item.chance)
         local roll = math.random(1, 100)
 
         D(
-            "Loot roll item=" ..
+            "Loot roll entry=" ..
             tostring(item.entry) ..
+            " kind=" ..
+            tostring(kind) ..
             " amount=" ..
             tostring(item.amount) ..
             " chance=" ..
@@ -910,39 +996,64 @@ local function GrantStockToPlayer(player)
         )
 
         if roll <= chance then
-            local beforeCount = player:GetItemCount(item.entry)
-            local addedItem = player:AddItem(item.entry, item.amount)
-            local afterCount = player:GetItemCount(item.entry)
-            local delta = afterCount - beforeCount
-
-            D(
-                "AddItem result item=" ..
-                tostring(item.entry) ..
-                " before=" ..
-                tostring(beforeCount) ..
-                " after=" ..
-                tostring(afterCount) ..
-                " delta=" ..
-                tostring(delta) ..
-                " addedItem=" ..
-                tostring(addedItem)
-            )
-
-            if delta > 0 then
+            if kind == "honor" then
+                player:ModifyHonorPoints(item.amount)
                 table.insert(granted, {
+                    kind = "honor",
                     entry = item.entry,
-                    amount = delta
+                    amount = item.amount
                 })
-
                 wonAnyItem = true
-            end
+            elseif kind == "arena" then
+                player:ModifyArenaPoints(item.amount)
+                table.insert(granted, {
+                    kind = "arena",
+                    entry = item.entry,
+                    amount = item.amount
+                })
+                wonAnyItem = true
+            elseif kind == "gold" then
+                player:ModifyMoney(item.amount * 10000)
+                table.insert(granted, {
+                    kind = "gold",
+                    entry = item.entry,
+                    amount = item.amount
+                })
+                wonAnyItem = true
+            else
+                local beforeCount = player:GetItemCount(item.entry)
+                local addedItem = player:AddItem(item.entry, item.amount)
+                local afterCount = player:GetItemCount(item.entry)
+                local delta = afterCount - beforeCount
 
-            if not addedItem or delta < item.amount then
-                for i = #granted, 1, -1 do
-                    player:RemoveItem(granted[i].entry, granted[i].amount)
+                D(
+                    "AddItem result item=" ..
+                    tostring(item.entry) ..
+                    " before=" ..
+                    tostring(beforeCount) ..
+                    " after=" ..
+                    tostring(afterCount) ..
+                    " delta=" ..
+                    tostring(delta) ..
+                    " addedItem=" ..
+                    tostring(addedItem)
+                )
+
+                if delta > 0 then
+                    table.insert(granted, {
+                        kind = "item",
+                        entry = item.entry,
+                        amount = delta
+                    })
+
+                    wonAnyItem = true
                 end
 
-                return false, "No tienes suficiente espacio o no puedes recibir uno de los items del cofre."
+                if not addedItem or delta < item.amount then
+                    RollbackGranted(player, granted)
+
+                    return false, "No tienes suficiente espacio o no puedes recibir uno de los items del cofre."
+                end
             end
         end
     end
@@ -1033,10 +1144,12 @@ function ClancyChestSystem.RequestOpen(player)
     SendAdminWindow(player)
 end
 
-function ClancyChestSystem.AddItem(player, itemEntry, amount, chance)
+function ClancyChestSystem.AddItem(player, itemEntry, amount, chance, kind)
     D(
         "Handler AddItem player=" ..
         PName(player) ..
+        " kindRaw=" ..
+        tostring(kind) ..
         " itemEntryRaw=" ..
         tostring(itemEntry) ..
         " amountRaw=" ..
@@ -1055,20 +1168,35 @@ function ClancyChestSystem.AddItem(player, itemEntry, amount, chance)
         return
     end
 
-    itemEntry = ToUInt(itemEntry, 0)
+    kind = NormalizeKind(kind)
     amount = ToUInt(amount, 0)
     chance = ClampChance(chance)
 
-    if itemEntry <= 0 or amount <= 0 then
-        player:SendBroadcastMessage("ItemID o cantidad inválida.")
+    if amount <= 0 then
+        player:SendBroadcastMessage("Cantidad inválida.")
         RefreshAdminWindow(player)
         return
     end
 
-    if not ItemExists(itemEntry) then
-        player:SendBroadcastMessage("El item " .. tostring(itemEntry) .. " no existe en item_template.")
-        RefreshAdminWindow(player)
-        return
+    if kind == "item" then
+        itemEntry = ToUInt(itemEntry, 0)
+
+        if itemEntry <= 0 then
+            player:SendBroadcastMessage("ItemID inválido.")
+            RefreshAdminWindow(player)
+            return
+        end
+
+        if not ItemExists(itemEntry) then
+            player:SendBroadcastMessage("El item " .. tostring(itemEntry) .. " no existe en item_template.")
+            RefreshAdminWindow(player)
+            return
+        end
+    else
+        -- Honor / arena / gold se guardan en un id mágico fijo por tipo,
+        -- así que cada tipo es una sola fila en la tabla y los AddItem
+        -- repetidos acumulan amount como con los items.
+        itemEntry = GetKindMagicId(kind)
     end
 
     local currentAmount = 0
@@ -1084,11 +1212,19 @@ function ClancyChestSystem.AddItem(player, itemEntry, amount, chance)
 
     PersistStockItem(itemEntry)
 
+    local label = GetRewardName(itemEntry)
+    local unit  = ""
+
+    if kind == "gold" then
+        unit = "g"
+    end
+
     player:SendBroadcastMessage(
         "Añadido: " ..
-        GetItemName(itemEntry) ..
+        tostring(label) ..
         " x" ..
         tostring(amount) ..
+        unit ..
         " con " ..
         tostring(chance) ..
         "% de probabilidad."
