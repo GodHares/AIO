@@ -644,10 +644,16 @@ local function RefreshRows()
 
             if selectedItemEntry == item.entry then
                 row.highlight:Show()
-                row:SetBackdropBorderColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 0.85)
+                row.borderTop:Show()
+                row.borderBottom:Show()
+                row.borderLeft:Show()
+                row.borderRight:Show()
             else
                 row.highlight:Hide()
-                row:SetBackdropBorderColor(0, 0, 0, 0)
+                row.borderTop:Hide()
+                row.borderBottom:Hide()
+                row.borderLeft:Hide()
+                row.borderRight:Hide()
             end
         else
             row.item = nil
@@ -721,20 +727,50 @@ local function CreateListRow(parent, index)
         row:SetPoint("TOPRIGHT", UI.rows[index - 1], "BOTTOMRIGHT", 0, -ROW_GAP)
     end
 
-    -- Backdrop solo con borde transparente; se vuelve dorado al seleccionar.
+    -- Backdrop SIN edgeFile: la textura de borde "UI-Tooltip-Border" con
+    -- edgeSize=10 se dibuja por fuera del frame y empuja la fila hacia el
+    -- track de scroll/borde del panel. Usamos solo bgFile y dibujamos el
+    -- "borde dorado del seleccionado" con 4 texturas hijas (top/bottom/
+    -- left/right) ancladas al ras de la fila. Por construcción, el borde
+    -- queda SIEMPRE dentro de los límites de la fila.
     row:SetBackdrop({
-        bgFile   = "Interface\\Buttons\\WHITE8x8",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-        edgeSize = 10,
-        insets   = { left = 2, right = 2, top = 2, bottom = 2 }
+        bgFile = "Interface\\Buttons\\WHITE8x8",
+        insets = { left = 0, right = 0, top = 0, bottom = 0 }
     })
     row:SetBackdropColor(C_BG_INPUT[1] + 0.01, C_BG_INPUT[2] + 0.01, C_BG_INPUT[3] + 0.01, 0.55)
-    row:SetBackdropBorderColor(0, 0, 0, 0)
 
     row.highlight = SolidTexture(row, "ARTWORK", C_ROW_HL, 0.78)
-    row.highlight:SetPoint("TOPLEFT", row, "TOPLEFT", 3, -3)
-    row.highlight:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", -3, 3)
+    row.highlight:SetPoint("TOPLEFT",     row, "TOPLEFT",     1, -1)
+    row.highlight:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", -1, 1)
     row.highlight:Hide()
+
+    local function MakeBorderEdge(side)
+        local tex = SolidTexture(row, "OVERLAY", C_GOLD, 0.85)
+        tex:Hide()
+        if side == "top" then
+            tex:SetPoint("TOPLEFT",  row, "TOPLEFT",  0, 0)
+            tex:SetPoint("TOPRIGHT", row, "TOPRIGHT", 0, 0)
+            tex:SetHeight(1)
+        elseif side == "bottom" then
+            tex:SetPoint("BOTTOMLEFT",  row, "BOTTOMLEFT",  0, 0)
+            tex:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 0)
+            tex:SetHeight(1)
+        elseif side == "left" then
+            tex:SetPoint("TOPLEFT",    row, "TOPLEFT",    0, 0)
+            tex:SetPoint("BOTTOMLEFT", row, "BOTTOMLEFT", 0, 0)
+            tex:SetWidth(1)
+        elseif side == "right" then
+            tex:SetPoint("TOPRIGHT",    row, "TOPRIGHT",    0, 0)
+            tex:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", 0, 0)
+            tex:SetWidth(1)
+        end
+        return tex
+    end
+
+    row.borderTop    = MakeBorderEdge("top")
+    row.borderBottom = MakeBorderEdge("bottom")
+    row.borderLeft   = MakeBorderEdge("left")
+    row.borderRight  = MakeBorderEdge("right")
 
     local function MakeRowText(col)
         local fs = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
