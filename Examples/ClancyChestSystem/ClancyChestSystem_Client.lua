@@ -26,6 +26,24 @@ local ROW_HEIGHT        = 36
 local ROW_GAP           = 2
 local ROW_STRIDE        = ROW_HEIGHT + ROW_GAP
 
+-- Ancho que ocupa la pista de scroll dentro del list panel (padding
+-- derecho + ancho del track + separación con las filas). Lo usan tanto
+-- el header como el rowsContainer para que las columnas siempre cuadren.
+local LIST_RIGHT_INSET  = 44
+
+-- Definición única de columnas de la lista. Header y filas comparten
+-- estos valores para que cualquier ajuste solo se haga en un sitio.
+local LIST_ICON_X       = 50
+local LIST_ICON_SIZE    = 24
+local LIST_COLS = {
+    index    = { x = 12,  w = 28,  justify = "CENTER" },
+    itemId   = { x = 90,  w = 90,  justify = "LEFT"   },
+    name     = { x = 195, w = 280, justify = "LEFT"   },
+    amount   = { x = 490, w = 80,  justify = "CENTER" },
+    chance   = { x = 580, w = 90,  justify = "CENTER" },
+    duration = { x = 680, w = 100, justify = "CENTER" },
+}
+
 -- Paleta dorada / oscura.
 local C_GOLD        = { 0.95, 0.74, 0.22 }
 local C_GOLD_DARK   = { 0.70, 0.50, 0.10 }
@@ -716,42 +734,31 @@ local function CreateListRow(parent, index)
     row.highlight:SetPoint("BOTTOMRIGHT", row, "BOTTOMRIGHT", -3, 3)
     row.highlight:Hide()
 
+    local function MakeRowText(col)
+        local fs = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        fs:SetPoint("LEFT", row, "LEFT", col.x, 0)
+        fs:SetWidth(col.w)
+        fs:SetJustifyH(col.justify)
+        return fs
+    end
+
     row.indexText = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    row.indexText:SetPoint("LEFT", row, "LEFT", 12, 0)
-    row.indexText:SetWidth(28)
-    row.indexText:SetJustifyH("CENTER")
+    row.indexText:SetPoint("LEFT", row, "LEFT", LIST_COLS.index.x, 0)
+    row.indexText:SetWidth(LIST_COLS.index.w)
+    row.indexText:SetJustifyH(LIST_COLS.index.justify)
 
     row.icon = row:CreateTexture(nil, "OVERLAY")
-    row.icon:SetWidth(24)
-    row.icon:SetHeight(24)
-    row.icon:SetPoint("LEFT", row, "LEFT", 52, 0)
+    row.icon:SetWidth(LIST_ICON_SIZE)
+    row.icon:SetHeight(LIST_ICON_SIZE)
+    row.icon:SetPoint("LEFT", row, "LEFT", LIST_ICON_X, 0)
     row.icon:SetTexture("Interface\\Icons\\INV_Misc_QuestionMark")
     row.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 
-    row.entryText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    row.entryText:SetPoint("LEFT", row, "LEFT", 95, 0)
-    row.entryText:SetWidth(100)
-    row.entryText:SetJustifyH("LEFT")
-
-    row.nameText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    row.nameText:SetPoint("LEFT", row, "LEFT", 210, 0)
-    row.nameText:SetWidth(280)
-    row.nameText:SetJustifyH("LEFT")
-
-    row.amountText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    row.amountText:SetPoint("LEFT", row, "LEFT", 510, 0)
-    row.amountText:SetWidth(80)
-    row.amountText:SetJustifyH("CENTER")
-
-    row.chanceText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    row.chanceText:SetPoint("LEFT", row, "LEFT", 605, 0)
-    row.chanceText:SetWidth(90)
-    row.chanceText:SetJustifyH("CENTER")
-
-    row.durationText = row:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
-    row.durationText:SetPoint("LEFT", row, "LEFT", 705, 0)
-    row.durationText:SetWidth(60)
-    row.durationText:SetJustifyH("CENTER")
+    row.entryText    = MakeRowText(LIST_COLS.itemId)
+    row.nameText     = MakeRowText(LIST_COLS.name)
+    row.amountText   = MakeRowText(LIST_COLS.amount)
+    row.chanceText   = MakeRowText(LIST_COLS.chance)
+    row.durationText = MakeRowText(LIST_COLS.duration)
 
     -- Botón de engranaje para edición rápida.
     local gear = CreateFrame("Button", nil, row)
@@ -924,14 +931,20 @@ local function CreateWindow()
     inputPanel:SetHeight(60)
     ApplyBackdrop(inputPanel, C_BG_INPUT, 0.95, C_GOLD_DARK, 12)
 
-    UI.itemBox     = MakeSpinnerEdit(inputPanel, "Item ID",      18,  -8, 200, "",   true)
-    UI.countBox    = MakeSpinnerEdit(inputPanel, "Cantidad",    230,  -8, 180, "1",  false)
-    UI.chanceBox   = MakeSpinnerEdit(inputPanel, "Chance %",    430,  -8, 200, "100", false)
-    UI.durationBox = MakeSpinnerEdit(inputPanel, "Duración min.", 650, -8, 200, "10",  false)
+    -- Cuatro columnas iguales (sin solape entre el editbox y la
+    -- etiqueta de la columna siguiente).
+    local INPUT_X = { 14, 222, 430, 638 }
+    local BOX_W   = 172  -- boxBg = BOX_W + 28 = 200; columnas de 208 px.
 
-    -- Botones de acción.
+    UI.itemBox     = MakeSpinnerEdit(inputPanel, "Item ID",       INPUT_X[1], -8, BOX_W, "",    true)
+    UI.countBox    = MakeSpinnerEdit(inputPanel, "Cantidad",      INPUT_X[2], -8, BOX_W, "1",   false)
+    UI.chanceBox   = MakeSpinnerEdit(inputPanel, "Chance %",      INPUT_X[3], -8, BOX_W, "100", false)
+    UI.durationBox = MakeSpinnerEdit(inputPanel, "Duración min.", INPUT_X[4], -8, BOX_W, "10",  false)
+
+    -- Botones de acción: 7 botones de 110 px con 6 px de gap caben
+    -- limpios dentro del configPanel sin desbordarse.
     local btnY = -100
-    local btnW = 116
+    local btnW = 110
     local function btnX(idx) return 14 + idx * (btnW + 6) end
 
     UI.addButton = MakeButton(configPanel, "Añadir", "plus", btnX(0), btnY, btnW, false, function()
@@ -1036,36 +1049,40 @@ local function CreateWindow()
     stripe:SetPoint("TOPRIGHT", listPanel, "TOPRIGHT", -14, -22)
     stripe:SetHeight(1)
 
+    -- header y headerLine paran ANTES del scrollbar para que las columnas
+    -- coincidan exactamente con el ancho real de las filas (que también
+    -- paran antes del scrollbar). Sin esto, el header está corrido a la
+    -- derecha respecto a las celdas.
     local headerRow = CreateFrame("Frame", nil, listPanel)
-    headerRow:SetPoint("TOPLEFT", listPanel, "TOPLEFT", 14, -32)
-    headerRow:SetPoint("TOPRIGHT", listPanel, "TOPRIGHT", -14, -32)
+    headerRow:SetPoint("TOPLEFT",  listPanel, "TOPLEFT",  14, -32)
+    headerRow:SetPoint("TOPRIGHT", listPanel, "TOPRIGHT", -LIST_RIGHT_INSET, -32)
     headerRow:SetHeight(28)
 
-    local function MakeHeaderLabel(text, x, w, justify)
+    local function MakeHeaderLabel(text, col)
         local fs = headerRow:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-        fs:SetPoint("LEFT", headerRow, "LEFT", x, 0)
-        fs:SetWidth(w)
-        fs:SetJustifyH(justify or "LEFT")
+        fs:SetPoint("LEFT", headerRow, "LEFT", col.x, 0)
+        fs:SetWidth(col.w)
+        fs:SetJustifyH(col.justify)
         fs:SetText(CC_GOLD .. text .. "|r")
     end
 
-    MakeHeaderLabel("#",                12,  28,  "CENTER")
-    MakeHeaderLabel("Item ID",          95,  100, "LEFT")
-    MakeHeaderLabel("Nombre",           210, 280, "LEFT")
-    MakeHeaderLabel("Cantidad",         510, 80,  "CENTER")
-    MakeHeaderLabel("Chance %",         605, 90,  "CENTER")
-    MakeHeaderLabel("Duración (min.)",  695, 110, "CENTER")
+    MakeHeaderLabel("#",                LIST_COLS.index)
+    MakeHeaderLabel("Item ID",          LIST_COLS.itemId)
+    MakeHeaderLabel("Nombre",           LIST_COLS.name)
+    MakeHeaderLabel("Cantidad",         LIST_COLS.amount)
+    MakeHeaderLabel("Chance %",         LIST_COLS.chance)
+    MakeHeaderLabel("Duración (min.)",  LIST_COLS.duration)
 
     local headerLine = SolidTexture(listPanel, "ARTWORK", C_GOLD_DARK, 0.7)
-    headerLine:SetPoint("TOPLEFT", listPanel, "TOPLEFT", 14, -62)
-    headerLine:SetPoint("TOPRIGHT", listPanel, "TOPRIGHT", -14, -62)
+    headerLine:SetPoint("TOPLEFT",  listPanel, "TOPLEFT",  14, -62)
+    headerLine:SetPoint("TOPRIGHT", listPanel, "TOPRIGHT", -LIST_RIGHT_INSET, -62)
     headerLine:SetHeight(1)
 
     -- Pista (track) sutil para la barra de scroll, dentro del panel.
     local scrollTrack = CreateFrame("Frame", nil, listPanel)
     scrollTrack:SetPoint("TOPRIGHT",    listPanel, "TOPRIGHT",    -16, -66)
     scrollTrack:SetPoint("BOTTOMRIGHT", listPanel, "BOTTOMRIGHT", -16, 16)
-    scrollTrack:SetWidth(20)
+    scrollTrack:SetWidth(16)
     ApplyBackdrop(scrollTrack, C_BG_INPUT, 0.85, C_GOLD_DARK, 10)
 
     local rowsContainer = CreateFrame("Frame", nil, listPanel)
@@ -1083,26 +1100,22 @@ local function CreateWindow()
     UI.scrollFrame:SetPoint("TOPLEFT",     scrollTrack, "TOPLEFT",     2, -2)
     UI.scrollFrame:SetPoint("BOTTOMRIGHT", scrollTrack, "BOTTOMRIGHT", -2, 2)
 
-    -- La plantilla FauxScrollFrameTemplate trae botones de 32x32; los reducimos
-    -- y los recoloreamos para que encajen dentro del track.
+    -- Ocultamos los botones up/down de la plantilla (a 16x16 quedan
+    -- distorsionados) y dejamos solo el slider; el scroll responde
+    -- además al mouse wheel sobre toda la lista.
     local sbName = UI.scrollFrame:GetName() .. "ScrollBar"
     local upBtn   = _G[sbName .. "ScrollUpButton"]
     local downBtn = _G[sbName .. "ScrollDownButton"]
     local sb      = _G[sbName]
 
-    if upBtn then
-        upBtn:SetWidth(16)
-        upBtn:SetHeight(16)
-    end
-    if downBtn then
-        downBtn:SetWidth(16)
-        downBtn:SetHeight(16)
-    end
+    if upBtn   then upBtn:Hide();   upBtn:SetWidth(0);   upBtn:SetHeight(0)   end
+    if downBtn then downBtn:Hide(); downBtn:SetWidth(0); downBtn:SetHeight(0) end
+
     if sb then
         sb:ClearAllPoints()
-        sb:SetPoint("TOPRIGHT",    UI.scrollFrame, "TOPRIGHT",    0, -16)
-        sb:SetPoint("BOTTOMRIGHT", UI.scrollFrame, "BOTTOMRIGHT", 0, 16)
-        sb:SetWidth(12)
+        sb:SetPoint("TOPRIGHT",    UI.scrollFrame, "TOPRIGHT",    0, -2)
+        sb:SetPoint("BOTTOMRIGHT", UI.scrollFrame, "BOTTOMRIGHT", 0, 2)
+        sb:SetWidth(10)
     end
 
     UI.rows = {}
@@ -1115,6 +1128,30 @@ local function CreateWindow()
 
     UI.scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
         FauxScrollFrame_OnVerticalScroll(self, offset, ROW_STRIDE, self.update)
+    end)
+
+    -- Mouse wheel sobre el list panel desplaza la lista.
+    listPanel:EnableMouseWheel(true)
+    listPanel:SetScript("OnMouseWheel", function(_, delta)
+        local total   = #stockItems
+        local visible = NUM_VISIBLE_ROWS
+
+        if total <= visible then return end
+
+        local maxOff = total - visible
+        local cur    = FauxScrollFrame_GetOffset(UI.scrollFrame) or 0
+        local newOff = cur - delta
+
+        if newOff < 0      then newOff = 0      end
+        if newOff > maxOff then newOff = maxOff end
+
+        FauxScrollFrame_SetOffset(UI.scrollFrame, newOff)
+
+        if sb and sb.SetValue then
+            sb:SetValue(newOff * ROW_STRIDE)
+        end
+
+        RefreshRows()
     end)
 
     -- Tick para refrescar el timer cada segundo.
