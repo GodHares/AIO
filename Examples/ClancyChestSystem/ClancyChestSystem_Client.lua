@@ -20,7 +20,7 @@ local PAYLOAD_SEP   = "<<CLANCYSEP>>"
 local DEBUG         = true
 
 local FRAME_WIDTH       = 920
-local FRAME_HEIGHT      = 660
+local FRAME_HEIGHT      = 686
 local NUM_VISIBLE_ROWS  = 5
 local ROW_HEIGHT        = 36
 local ROW_GAP           = 2
@@ -1078,7 +1078,13 @@ local function CreateWindow()
     -- Lista de items configurados.
     ------------------------------------------------------------
 
-    local listPanel = MakePanel(frame, 24, -400, FRAME_WIDTH - 48, 248)
+    -- listPanel: alto suficiente para 5 filas de ROW_HEIGHT con sus gaps
+    -- más el header (~68 px arriba) y un padding inferior real (~14 px).
+    -- Cálculo: 5*36 + 4*2 = 188 px de filas + 68 (header) + 18 (bottom
+    -- padding) = 274 px. Antes era 248 y la última fila se salía 22 px
+    -- por debajo del borde dorado del panel (lo que el usuario veía como
+    -- 'el limite se está saliendo' en la fila seleccionada).
+    local listPanel = MakePanel(frame, 24, -400, FRAME_WIDTH - 48, 274)
     UI.listPanel = listPanel
 
     UI.listTitle = listPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
