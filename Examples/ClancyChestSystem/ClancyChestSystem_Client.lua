@@ -658,6 +658,8 @@ local function RefreshRows()
     if UI.emptyText then
         if #stockItems <= 0 then UI.emptyText:Show() else UI.emptyText:Hide() end
     end
+
+    if UI.UpdateScrollThumb then UI.UpdateScrollThumb() end
 end
 
 local function RebuildStockData(itemsText)
@@ -877,9 +879,12 @@ local function CreateWindow()
     -- Status bar.
     ------------------------------------------------------------
 
+    -- Status bar: ampliamos el ancho disponible y redistribuimos las
+    -- 4 columnas para que 'Activación: #N' nunca se corte (antes
+    -- terminaba a 74 px del borde y los valores grandes se comían al final).
     local statusBar = CreateFrame("Frame", nil, frame)
-    statusBar:SetPoint("TOPLEFT", frame, "TOPLEFT", 130, -76)
-    statusBar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -36, -76)
+    statusBar:SetPoint("TOPLEFT",  frame, "TOPLEFT",  130, -76)
+    statusBar:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -24, -76)
     statusBar:SetHeight(28)
 
     UI.statusDot = statusBar:CreateTexture(nil, "ARTWORK")
@@ -890,31 +895,31 @@ local function CreateWindow()
 
     UI.statusValue = MakeStatusItem(statusBar, "Estado", "INACTIVO", 22)
 
-    StatusVerticalSep(statusBar, 230)
+    StatusVerticalSep(statusBar, 200)
 
-    UI.chestValue = MakeStatusItem(statusBar, "Cofres", "0/0", 250)
+    UI.chestValue = MakeStatusItem(statusBar, "Cofres", "0/0", 220)
 
-    StatusVerticalSep(statusBar, 410)
+    StatusVerticalSep(statusBar, 390)
 
     local hourglass = statusBar:CreateTexture(nil, "ARTWORK")
     hourglass:SetTexture("Interface\\Icons\\INV_Misc_PocketWatch_01")
     hourglass:SetWidth(18)
     hourglass:SetHeight(18)
-    hourglass:SetPoint("LEFT", statusBar, "LEFT", 430, 0)
+    hourglass:SetPoint("LEFT", statusBar, "LEFT", 410, 0)
     hourglass:SetTexCoord(0.07, 0.93, 0.07, 0.93)
     hourglass:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
 
     local timerLabel = statusBar:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    timerLabel:SetPoint("LEFT", statusBar, "LEFT", 452, 0)
+    timerLabel:SetPoint("LEFT", statusBar, "LEFT", 432, 0)
     timerLabel:SetText(CC_GOLD .. "Tiempo restante:|r")
 
     UI.timerValue = statusBar:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
     UI.timerValue:SetPoint("LEFT", timerLabel, "RIGHT", 8, 0)
     UI.timerValue:SetText("--:--")
 
-    StatusVerticalSep(statusBar, 660)
+    StatusVerticalSep(statusBar, 600)
 
-    UI.activationValue = MakeStatusItem(statusBar, "Activación", "#0", 680)
+    UI.activationValue = MakeStatusItem(statusBar, "Activación", "#0", 620)
 
     ------------------------------------------------------------
     -- Configuración.
@@ -1100,9 +1105,10 @@ local function CreateWindow()
     UI.scrollFrame:SetPoint("TOPLEFT",     scrollTrack, "TOPLEFT",     2, -2)
     UI.scrollFrame:SetPoint("BOTTOMRIGHT", scrollTrack, "BOTTOMRIGHT", -2, 2)
 
-    -- Ocultamos los botones up/down de la plantilla (a 16x16 quedan
-    -- distorsionados) y dejamos solo el slider; el scroll responde
-    -- además al mouse wheel sobre toda la lista.
+    -- La plantilla FauxScrollFrameTemplate trae un slider con texturas
+    -- (knob y botones up/down) que arrastran tamaños fijos y se ven mal
+    -- al achicarlos. Las ocultamos y dibujamos nuestro propio thumb dorado
+    -- de tamaño exacto para que SIEMPRE quede dentro del track.
     local sbName = UI.scrollFrame:GetName() .. "ScrollBar"
     local upBtn   = _G[sbName .. "ScrollUpButton"]
     local downBtn = _G[sbName .. "ScrollDownButton"]
@@ -1112,11 +1118,51 @@ local function CreateWindow()
     if downBtn then downBtn:Hide(); downBtn:SetWidth(0); downBtn:SetHeight(0) end
 
     if sb then
-        sb:ClearAllPoints()
-        sb:SetPoint("TOPRIGHT",    UI.scrollFrame, "TOPRIGHT",    0, -2)
-        sb:SetPoint("BOTTOMRIGHT", UI.scrollFrame, "BOTTOMRIGHT", 0, 2)
-        sb:SetWidth(10)
+        sb:Hide()
+        sb:EnableMouse(false)
+        for i = 1, sb:GetNumRegions() do
+            local region = select(i, sb:GetRegions())
+            if region and region.Hide then region:Hide() end
+        end
     end
+
+    -- Thumb custom (no interactivo) que indica la posición del scroll.
+    local thumb = scrollTrack:CreateTexture(nil, "OVERLAY")
+    thumb:SetTexture("Interface\\Buttons\\WHITE8x8")
+    thumb:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 0.85)
+    thumb:SetWidth(8)
+    thumb:SetHeight(20)
+    thumb:SetPoint("TOP", scrollTrack, "TOP", 0, -3)
+    UI.scrollThumb = thumb
+
+    local function UpdateScrollThumb()
+        local total   = #stockItems
+        local visible = NUM_VISIBLE_ROWS
+
+        if total <= visible then
+            thumb:Hide()
+            return
+        end
+
+        thumb:Show()
+
+        local trackH = scrollTrack:GetHeight() - 6
+        if trackH <= 0 then return end
+
+        local thumbH = math.max(20, math.floor(trackH * (visible / total)))
+        if thumbH > trackH then thumbH = trackH end
+
+        local maxOff = total - visible
+        local off    = FauxScrollFrame_GetOffset(UI.scrollFrame) or 0
+        local pct    = (maxOff > 0) and (off / maxOff) or 0
+        local maxY   = trackH - thumbH
+        local y      = -3 - math.floor(pct * maxY)
+
+        thumb:SetHeight(thumbH)
+        thumb:ClearAllPoints()
+        thumb:SetPoint("TOP", scrollTrack, "TOP", 0, y)
+    end
+    UI.UpdateScrollThumb = UpdateScrollThumb
 
     UI.rows = {}
 
@@ -1124,15 +1170,17 @@ local function CreateWindow()
         UI.rows[i] = CreateListRow(rowsContainer, i)
     end
 
+    -- RefreshRows ya llama a UpdateScrollThumb al final, así que con
+    -- usarlo como update de FauxScrollFrame basta.
     UI.scrollFrame.update = RefreshRows
 
     UI.scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
         FauxScrollFrame_OnVerticalScroll(self, offset, ROW_STRIDE, self.update)
     end)
 
-    -- Mouse wheel sobre el list panel desplaza la lista.
-    listPanel:EnableMouseWheel(true)
-    listPanel:SetScript("OnMouseWheel", function(_, delta)
+    -- Mouse wheel sobre el list panel desplaza la lista; también en el
+    -- scrollTrack y el rowsContainer para que el evento no se pierda.
+    local function OnWheel(_, delta)
         local total   = #stockItems
         local visible = NUM_VISIBLE_ROWS
 
@@ -1146,13 +1194,15 @@ local function CreateWindow()
         if newOff > maxOff then newOff = maxOff end
 
         FauxScrollFrame_SetOffset(UI.scrollFrame, newOff)
-
-        if sb and sb.SetValue then
-            sb:SetValue(newOff * ROW_STRIDE)
-        end
-
         RefreshRows()
-    end)
+    end
+
+    listPanel:EnableMouseWheel(true)
+    listPanel:SetScript("OnMouseWheel", OnWheel)
+    rowsContainer:EnableMouseWheel(true)
+    rowsContainer:SetScript("OnMouseWheel", OnWheel)
+    scrollTrack:EnableMouseWheel(true)
+    scrollTrack:SetScript("OnMouseWheel", OnWheel)
 
     -- Tick para refrescar el timer cada segundo.
     frame:SetScript("OnUpdate", function()
