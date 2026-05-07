@@ -106,6 +106,22 @@ local function PGuid(player)
     return 0
 end
 
+local function PAccount(player)
+    if not player then
+        return 0
+    end
+
+    local ok, accountId = pcall(function()
+        return player:GetAccountId()
+    end)
+
+    if ok and accountId then
+        return tonumber(accountId) or 0
+    end
+
+    return 0
+end
+
 local function GetGameObjectGuidLow(gameObject)
     if not gameObject then
         D("GetGameObjectGuidLow: gameObject nil.")
@@ -244,6 +260,150 @@ local function BroadcastAlertToWorld(title, subtitle)
             AIO.Handle(p, HANDLER, "ShowAlert", title, subtitle)
         end
     end
+end
+
+------------------------------------------------------------
+-- Auditoría: registra activaciones, cambios de stock y premios
+-- entregados, para tener control de qué GMs hacen qué y qué
+-- jugadores ganan qué durante cada evento.
+--
+-- Tablas (creadas con CREATE TABLE IF NOT EXISTS al cargar):
+--   * custom_clancy_chest_audit_activations
+--       Quién activó/cerró el evento, cuándo, duración, total de
+--       cofres y motivo de cierre.
+--   * custom_clancy_chest_audit_stock_changes
+--       Cada add/remove/delete/clear hecho por un GM al stock.
+--   * custom_clancy_chest_audit_rewards
+--       Cada premio entregado a un jugador (item / honor / arena /
+--       gold), con activation_id y guid del cofre que lo dio.
+------------------------------------------------------------
+
+local function EnsureAuditTables()
+    WorldDBExecute(
+        "CREATE TABLE IF NOT EXISTS `custom_clancy_chest_audit_activations` (" ..
+        "  `id`               INT UNSIGNED NOT NULL AUTO_INCREMENT," ..
+        "  `event_key`        VARCHAR(64)  NOT NULL DEFAULT 'default'," ..
+        "  `activation_id`    INT UNSIGNED NOT NULL," ..
+        "  `gm_guid`          INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `gm_account`       INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `gm_name`          VARCHAR(64)  NOT NULL DEFAULT ''," ..
+        "  `started_at`       INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `duration_minutes` INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `total_chests`     INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `ended_at`         INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `end_reason`       VARCHAR(32)  NOT NULL DEFAULT ''," ..
+        "  PRIMARY KEY (`id`)," ..
+        "  KEY `idx_event_activation` (`event_key`, `activation_id`)" ..
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+    )
+
+    WorldDBExecute(
+        "CREATE TABLE IF NOT EXISTS `custom_clancy_chest_audit_stock_changes` (" ..
+        "  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT," ..
+        "  `event_key`     VARCHAR(64)  NOT NULL DEFAULT 'default'," ..
+        "  `activation_id` INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `at_time`       INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `gm_guid`       INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `gm_account`    INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `gm_name`       VARCHAR(64)  NOT NULL DEFAULT ''," ..
+        "  `action`        VARCHAR(16)  NOT NULL DEFAULT ''," ..
+        "  `kind`          VARCHAR(16)  NOT NULL DEFAULT 'item'," ..
+        "  `item_entry`    INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `amount`        INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `chance_pct`    INT UNSIGNED NOT NULL DEFAULT 100," ..
+        "  PRIMARY KEY (`id`)," ..
+        "  KEY `idx_event_time` (`event_key`, `at_time`)," ..
+        "  KEY `idx_gm` (`gm_guid`)" ..
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+    )
+
+    WorldDBExecute(
+        "CREATE TABLE IF NOT EXISTS `custom_clancy_chest_audit_rewards` (" ..
+        "  `id`             INT UNSIGNED NOT NULL AUTO_INCREMENT," ..
+        "  `event_key`      VARCHAR(64)  NOT NULL DEFAULT 'default'," ..
+        "  `activation_id`  INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `at_time`        INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `player_guid`    INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `player_account` INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `player_name`    VARCHAR(64)  NOT NULL DEFAULT ''," ..
+        "  `chest_guid`     INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `kind`           VARCHAR(16)  NOT NULL DEFAULT 'item'," ..
+        "  `item_entry`     INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `amount`         INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  PRIMARY KEY (`id`)," ..
+        "  KEY `idx_event_activation` (`event_key`, `activation_id`)," ..
+        "  KEY `idx_player` (`player_guid`)" ..
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+    )
+end
+
+local function LogActivationStart(player, durationMinutes, totalChests)
+    WorldDBExecute(string.format(
+        "INSERT INTO `custom_clancy_chest_audit_activations` " ..
+        "(`event_key`, `activation_id`, `gm_guid`, `gm_account`, `gm_name`, " ..
+        " `started_at`, `duration_minutes`, `total_chests`) " ..
+        "VALUES (%s, %u, %u, %u, %s, %u, %u, %u)",
+        EventKeySql(),
+        ToUInt(State.activationId, 0),
+        PGuid(player),
+        PAccount(player),
+        SqlString(PName(player)),
+        os.time(),
+        ToUInt(durationMinutes, 0),
+        ToUInt(totalChests, 0)
+    ))
+end
+
+local function LogActivationEnd(reason)
+    WorldDBExecute(string.format(
+        "UPDATE `custom_clancy_chest_audit_activations` " ..
+        "SET `ended_at` = %u, `end_reason` = %s " ..
+        "WHERE `event_key` = %s AND `activation_id` = %u AND `ended_at` = 0",
+        os.time(),
+        SqlString(tostring(reason or "")),
+        EventKeySql(),
+        ToUInt(State.activationId, 0)
+    ))
+end
+
+local function LogStockChange(player, action, kind, itemEntry, amount, chance)
+    WorldDBExecute(string.format(
+        "INSERT INTO `custom_clancy_chest_audit_stock_changes` " ..
+        "(`event_key`, `activation_id`, `at_time`, `gm_guid`, `gm_account`, " ..
+        " `gm_name`, `action`, `kind`, `item_entry`, `amount`, `chance_pct`) " ..
+        "VALUES (%s, %u, %u, %u, %u, %s, %s, %s, %u, %u, %u)",
+        EventKeySql(),
+        ToUInt(State.activationId, 0),
+        os.time(),
+        PGuid(player),
+        PAccount(player),
+        SqlString(PName(player)),
+        SqlString(tostring(action or "")),
+        SqlString(tostring(kind or "item")),
+        ToUInt(itemEntry, 0),
+        ToUInt(amount, 0),
+        ToUInt(chance, 100)
+    ))
+end
+
+local function LogRewardGranted(player, chestGuid, kind, itemEntry, amount)
+    WorldDBExecute(string.format(
+        "INSERT INTO `custom_clancy_chest_audit_rewards` " ..
+        "(`event_key`, `activation_id`, `at_time`, `player_guid`, " ..
+        " `player_account`, `player_name`, `chest_guid`, `kind`, " ..
+        " `item_entry`, `amount`) " ..
+        "VALUES (%s, %u, %u, %u, %u, %s, %u, %s, %u, %u)",
+        EventKeySql(),
+        ToUInt(State.activationId, 0),
+        os.time(),
+        PGuid(player),
+        PAccount(player),
+        SqlString(PName(player)),
+        ToUInt(chestGuid, 0),
+        SqlString(tostring(kind or "item")),
+        ToUInt(itemEntry, 0),
+        ToUInt(amount, 0)
+    ))
 end
 
 local function IsAdmin(player)
@@ -705,6 +865,8 @@ Deactivate = function(player, reason)
     SaveState()
     CancelStopTimer()
 
+    LogActivationEnd(reason)
+
     -- No borramos la tabla de loot actual aquí, para que el conteo histórico quede visible.
     -- Se limpia en activaciones futuras según retención.
     UsedChests = {}
@@ -866,6 +1028,8 @@ local function Activate(player, durationMinutes)
     UsedChests = {}
 
     SaveState()
+
+    LogActivationStart(player, math.floor(durationSeconds / 60), totalChests)
 
     WorldDBExecute(string.format(
         "DELETE FROM `custom_clancy_chest_loot` " ..
@@ -1035,7 +1199,7 @@ local function RollbackGranted(player, granted)
     end
 end
 
-local function GrantStockToPlayer(player)
+local function GrantStockToPlayer(player, chestGuid)
     local stock = GetSortedStock()
     local granted = {}
     local wonAnyItem = false
@@ -1066,6 +1230,7 @@ local function GrantStockToPlayer(player)
                     entry = item.entry,
                     amount = item.amount
                 })
+                LogRewardGranted(player, chestGuid, "honor", item.entry, item.amount)
                 wonAnyItem = true
             elseif kind == "arena" then
                 player:ModifyArenaPoints(item.amount)
@@ -1074,6 +1239,7 @@ local function GrantStockToPlayer(player)
                     entry = item.entry,
                     amount = item.amount
                 })
+                LogRewardGranted(player, chestGuid, "arena", item.entry, item.amount)
                 wonAnyItem = true
             elseif kind == "gold" then
                 player:ModifyMoney(item.amount * 10000)
@@ -1082,6 +1248,7 @@ local function GrantStockToPlayer(player)
                     entry = item.entry,
                     amount = item.amount
                 })
+                LogRewardGranted(player, chestGuid, "gold", item.entry, item.amount)
                 wonAnyItem = true
             else
                 local beforeCount = player:GetItemCount(item.entry)
@@ -1108,6 +1275,7 @@ local function GrantStockToPlayer(player)
                         entry = item.entry,
                         amount = delta
                     })
+                    LogRewardGranted(player, chestGuid, "item", item.entry, delta)
 
                     wonAnyItem = true
                 end
@@ -1200,7 +1368,7 @@ local function OnActiveChestHello(event, player, gameObject)
         return false
     end
 
-    local ok, resultMessage = GrantStockToPlayer(player)
+    local ok, resultMessage = GrantStockToPlayer(player, GetGameObjectGuidLow(gameObject))
 
     if not ok then
         UnmarkLooted(gameObject)
@@ -1297,6 +1465,7 @@ function ClancyChestSystem.AddItem(player, itemEntry, amount, chance, kind)
     }
 
     PersistStockItem(itemEntry)
+    LogStockChange(player, "add", kind, itemEntry, amount, chance)
 
     local label = GetRewardName(itemEntry)
     local unit  = ""
@@ -1363,9 +1532,12 @@ function ClancyChestSystem.RemoveItem(player, itemEntry, amount)
         return
     end
 
+    local kindForLog = GetRewardKind(itemEntry)
+
     if amount <= 0 or amount >= current then
         State.items[itemEntry] = nil
         PersistStockItem(itemEntry)
+        LogStockChange(player, "delete", kindForLog, itemEntry, current, chance)
         player:SendBroadcastMessage("Item eliminado del cofre.")
     else
         State.items[itemEntry] = {
@@ -1374,6 +1546,7 @@ function ClancyChestSystem.RemoveItem(player, itemEntry, amount)
         }
 
         PersistStockItem(itemEntry)
+        LogStockChange(player, "remove", kindForLog, itemEntry, amount, chance)
         player:SendBroadcastMessage("Cantidad reducida.")
     end
 
@@ -1394,6 +1567,7 @@ function ClancyChestSystem.ClearStock(player)
     end
 
     ClearStock()
+    LogStockChange(player, "clear", "all", 0, 0, 0)
     player:SendBroadcastMessage("Items del cofre limpiados.")
     RefreshAdminWindow(player)
 end
@@ -1420,6 +1594,7 @@ D("ACTIVE_GO_ENTRY=" .. tostring(CONFIG.ACTIVE_GO_ENTRY))
 RegisterGameObjectGossipEvent(CONFIG.PREP_GO_ENTRY, GOSSIP_EVENT_ON_HELLO, OnPrepChestHello)
 RegisterGameObjectGossipEvent(CONFIG.ACTIVE_GO_ENTRY, GOSSIP_EVENT_ON_HELLO, OnActiveChestHello)
 
+EnsureAuditTables()
 LoadState()
 
 if State.active then
