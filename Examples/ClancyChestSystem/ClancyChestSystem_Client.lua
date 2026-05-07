@@ -23,6 +23,8 @@ local FRAME_WIDTH       = 920
 local FRAME_HEIGHT      = 660
 local NUM_VISIBLE_ROWS  = 5
 local ROW_HEIGHT        = 36
+local ROW_GAP           = 2
+local ROW_STRIDE        = ROW_HEIGHT + ROW_GAP
 
 -- Paleta dorada / oscura.
 local C_GOLD        = { 0.95, 0.74, 0.22 }
@@ -397,55 +399,14 @@ local function CreateButtonIcon(btn, kind)
         icon:SetHeight(16)
         icon:SetVertexColor(1, 0.5, 0.4, 1)
     elseif kind == "broom" then
-        -- Ícono ad-hoc: 3 cerdas sobre una base.
-        local base = btn:CreateTexture(nil, "ARTWORK")
-        base:SetTexture("Interface\\Buttons\\WHITE8x8")
-        base:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-        base:SetWidth(14)
-        base:SetHeight(3)
-
-        local b1 = btn:CreateTexture(nil, "ARTWORK")
-        b1:SetTexture("Interface\\Buttons\\WHITE8x8")
-        b1:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-        b1:SetWidth(2)
-        b1:SetHeight(8)
-
-        local b2 = btn:CreateTexture(nil, "ARTWORK")
-        b2:SetTexture("Interface\\Buttons\\WHITE8x8")
-        b2:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-        b2:SetWidth(2)
-        b2:SetHeight(8)
-
-        local b3 = btn:CreateTexture(nil, "ARTWORK")
-        b3:SetTexture("Interface\\Buttons\\WHITE8x8")
-        b3:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-        b3:SetWidth(2)
-        b3:SetHeight(8)
-
-        icon = base
-        icon._extra = { b1, b2, b3 }
+        icon = btn:CreateTexture(nil, "ARTWORK")
+        icon:SetTexture("Interface\\Buttons\\UI-PaintBrush-Up")
+        icon:SetWidth(18)
+        icon:SetHeight(18)
+        icon:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
     elseif kind == "play" then
-        -- Triángulo play simulado con 3 capas verticales.
-        local p1 = btn:CreateTexture(nil, "ARTWORK")
-        p1:SetTexture("Interface\\Buttons\\WHITE8x8")
-        p1:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-        p1:SetWidth(3)
-        p1:SetHeight(12)
-
-        local p2 = btn:CreateTexture(nil, "ARTWORK")
-        p2:SetTexture("Interface\\Buttons\\WHITE8x8")
-        p2:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-        p2:SetWidth(3)
-        p2:SetHeight(8)
-
-        local p3 = btn:CreateTexture(nil, "ARTWORK")
-        p3:SetTexture("Interface\\Buttons\\WHITE8x8")
-        p3:SetVertexColor(C_GOLD[1], C_GOLD[2], C_GOLD[3], 1)
-        p3:SetWidth(3)
-        p3:SetHeight(4)
-
-        icon = p1
-        icon._extra = { p2, p3 }
+        icon = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        icon:SetText(CC_GOLD .. ">|r")
     elseif kind == "stop" then
         icon = btn:CreateTexture(nil, "ARTWORK")
         icon:SetTexture("Interface\\Buttons\\WHITE8x8")
@@ -466,18 +427,9 @@ local function PositionIcon(btn, kind, icon)
     if kind == "plus" or kind == "minus" then
         icon:SetPoint("LEFT", btn, "LEFT", 12, 0)
     elseif kind == "stop" then
-        icon:SetPoint("LEFT", btn, "LEFT", 12, 0)
-    elseif kind == "broom" then
-        -- base centrada abajo, cerdas encima.
-        icon:SetPoint("LEFT", btn, "LEFT", 8, -4)
-        local b = icon._extra
-        b[1]:SetPoint("BOTTOM", icon, "TOP", -4, 0)
-        b[2]:SetPoint("BOTTOM", icon, "TOP", 0, 0)
-        b[3]:SetPoint("BOTTOM", icon, "TOP", 4, 0)
+        icon:SetPoint("LEFT", btn, "LEFT", 14, 0)
     elseif kind == "play" then
-        icon:SetPoint("LEFT", btn, "LEFT", 12, 0)
-        icon._extra[1]:SetPoint("LEFT", icon, "RIGHT", 0, 0)
-        icon._extra[2]:SetPoint("LEFT", icon._extra[1], "RIGHT", 0, 0)
+        icon:SetPoint("LEFT", btn, "LEFT", 14, 0)
     else
         icon:SetPoint("LEFT", btn, "LEFT", 10, 0)
     end
@@ -648,7 +600,7 @@ end
 local function RefreshRows()
     if not UI.rows or not UI.scrollFrame then return end
 
-    FauxScrollFrame_Update(UI.scrollFrame, #stockItems, NUM_VISIBLE_ROWS, ROW_HEIGHT)
+    FauxScrollFrame_Update(UI.scrollFrame, #stockItems, NUM_VISIBLE_ROWS, ROW_STRIDE)
     local offset = FauxScrollFrame_GetOffset(UI.scrollFrame)
 
     for i = 1, NUM_VISIBLE_ROWS do
@@ -739,13 +691,14 @@ end
 
 local function CreateListRow(parent, index)
     local row = CreateFrame("Button", nil, parent)
-    row:SetWidth(800)
     row:SetHeight(ROW_HEIGHT)
 
     if index == 1 then
-        row:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
+        row:SetPoint("TOPLEFT",  parent, "TOPLEFT",  0, 0)
+        row:SetPoint("TOPRIGHT", parent, "TOPRIGHT", 0, 0)
     else
-        row:SetPoint("TOPLEFT", UI.rows[index - 1], "BOTTOMLEFT", 0, -2)
+        row:SetPoint("TOPLEFT",  UI.rows[index - 1], "BOTTOMLEFT",  0, -ROW_GAP)
+        row:SetPoint("TOPRIGHT", UI.rows[index - 1], "BOTTOMRIGHT", 0, -ROW_GAP)
     end
 
     -- Backdrop solo con borde transparente; se vuelve dorado al seleccionar.
@@ -1071,7 +1024,7 @@ local function CreateWindow()
     -- Lista de items configurados.
     ------------------------------------------------------------
 
-    local listPanel = MakePanel(frame, 24, -400, FRAME_WIDTH - 48, 232)
+    local listPanel = MakePanel(frame, 24, -400, FRAME_WIDTH - 48, 248)
     UI.listPanel = listPanel
 
     UI.listTitle = listPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal")
@@ -1108,10 +1061,17 @@ local function CreateWindow()
     headerLine:SetPoint("TOPRIGHT", listPanel, "TOPRIGHT", -14, -62)
     headerLine:SetHeight(1)
 
+    -- Pista (track) sutil para la barra de scroll, dentro del panel.
+    local scrollTrack = CreateFrame("Frame", nil, listPanel)
+    scrollTrack:SetPoint("TOPRIGHT",    listPanel, "TOPRIGHT",    -16, -66)
+    scrollTrack:SetPoint("BOTTOMRIGHT", listPanel, "BOTTOMRIGHT", -16, 16)
+    scrollTrack:SetWidth(20)
+    ApplyBackdrop(scrollTrack, C_BG_INPUT, 0.85, C_GOLD_DARK, 10)
+
     local rowsContainer = CreateFrame("Frame", nil, listPanel)
-    rowsContainer:SetPoint("TOPLEFT", listPanel, "TOPLEFT", 14, -68)
-    rowsContainer:SetWidth(800)
-    rowsContainer:SetHeight((ROW_HEIGHT + 2) * NUM_VISIBLE_ROWS)
+    rowsContainer:SetPoint("TOPLEFT",    listPanel, "TOPLEFT",    14, -68)
+    rowsContainer:SetPoint("BOTTOMLEFT", listPanel, "BOTTOMLEFT", 14, 14)
+    rowsContainer:SetPoint("TOPRIGHT",   scrollTrack, "TOPLEFT",  -8, 0)
     UI.rowsContainer = rowsContainer
 
     UI.emptyText = rowsContainer:CreateFontString(nil, "OVERLAY", "GameFontDisable")
@@ -1119,10 +1079,31 @@ local function CreateWindow()
     UI.emptyText:SetText("No hay items configurados.")
 
     UI.scrollFrame = CreateFrame("ScrollFrame", "ClancyChestSystemScrollFrame",
-                                 listPanel, "FauxScrollFrameTemplate")
-    UI.scrollFrame:SetPoint("TOPRIGHT",    listPanel, "TOPRIGHT",    -22, -68)
-    UI.scrollFrame:SetPoint("BOTTOMRIGHT", listPanel, "BOTTOMRIGHT", -22, 14)
-    UI.scrollFrame:SetWidth(20)
+                                 scrollTrack, "FauxScrollFrameTemplate")
+    UI.scrollFrame:SetPoint("TOPLEFT",     scrollTrack, "TOPLEFT",     2, -2)
+    UI.scrollFrame:SetPoint("BOTTOMRIGHT", scrollTrack, "BOTTOMRIGHT", -2, 2)
+
+    -- La plantilla FauxScrollFrameTemplate trae botones de 32x32; los reducimos
+    -- y los recoloreamos para que encajen dentro del track.
+    local sbName = UI.scrollFrame:GetName() .. "ScrollBar"
+    local upBtn   = _G[sbName .. "ScrollUpButton"]
+    local downBtn = _G[sbName .. "ScrollDownButton"]
+    local sb      = _G[sbName]
+
+    if upBtn then
+        upBtn:SetWidth(16)
+        upBtn:SetHeight(16)
+    end
+    if downBtn then
+        downBtn:SetWidth(16)
+        downBtn:SetHeight(16)
+    end
+    if sb then
+        sb:ClearAllPoints()
+        sb:SetPoint("TOPRIGHT",    UI.scrollFrame, "TOPRIGHT",    0, -16)
+        sb:SetPoint("BOTTOMRIGHT", UI.scrollFrame, "BOTTOMRIGHT", 0, 16)
+        sb:SetWidth(12)
+    end
 
     UI.rows = {}
 
@@ -1133,7 +1114,7 @@ local function CreateWindow()
     UI.scrollFrame.update = RefreshRows
 
     UI.scrollFrame:SetScript("OnVerticalScroll", function(self, offset)
-        FauxScrollFrame_OnVerticalScroll(self, offset, ROW_HEIGHT + 2, self.update)
+        FauxScrollFrame_OnVerticalScroll(self, offset, ROW_STRIDE, self.update)
     end)
 
     -- Tick para refrescar el timer cada segundo.
