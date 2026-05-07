@@ -1062,7 +1062,30 @@ local function GrantStockToPlayer(player)
         return true, "No encontraste ningún objeto dentro del cofre."
     end
 
-    return true, nil
+    -- Construye un resumen legible con la cantidad ganada de cada tipo.
+    -- Los items se agrupan por entry (ya están separados; sólo formateamos
+    -- "Nombre xN"). Honor / arena / gold se muestran con su unidad propia.
+    local parts = {}
+
+    for _, g in ipairs(granted) do
+        if g.kind == "honor" then
+            table.insert(parts, tostring(g.amount) .. " puntos de honor")
+        elseif g.kind == "arena" then
+            table.insert(parts, tostring(g.amount) .. " puntos de arena")
+        elseif g.kind == "gold" then
+            table.insert(parts, tostring(g.amount) .. "g de oro")
+        else
+            local name = GetItemName(g.entry)
+
+            if g.amount > 1 then
+                table.insert(parts, name .. " x" .. tostring(g.amount))
+            else
+                table.insert(parts, name)
+            end
+        end
+    end
+
+    return true, "Has recibido: " .. table.concat(parts, ", ") .. "."
 end
 
 local function OnPrepChestHello(event, player, gameObject)
