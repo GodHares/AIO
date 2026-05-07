@@ -1616,6 +1616,29 @@ function ClancyChestSystem.Refresh(...)
     D("Refresh viejo recibido. Ignorado. Usa OpenAdminPayload.")
 end
 
+-- Alerta tipo "raid warning" enviada por el server. Recibe un título y
+-- un subtítulo opcional y los pinta en el banner amarillo central.
+function ClancyChestSystem.ShowAlert(title, subtitle)
+    title    = tostring(title or "")
+    subtitle = subtitle and tostring(subtitle) or ""
+
+    D("ShowAlert title=" .. title .. " subtitle=" .. subtitle)
+
+    if RaidNotice_AddMessage and RaidWarningFrame and ChatTypeInfo then
+        local info = ChatTypeInfo["RAID_WARNING"]
+        RaidNotice_AddMessage(RaidWarningFrame, title, info)
+
+        if subtitle ~= "" then
+            RaidNotice_AddMessage(RaidWarningFrame, subtitle, info)
+        end
+    end
+
+    if PlaySound then
+        -- "RaidWarning" es el sonido del banner amarillo de WoW.
+        PlaySound("RaidWarning")
+    end
+end
+
 ------------------------------------------------------------
 -- Slash commands.
 ------------------------------------------------------------

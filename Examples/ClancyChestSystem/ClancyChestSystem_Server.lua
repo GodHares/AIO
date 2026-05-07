@@ -224,6 +224,28 @@ local function SafeWorldMessage(message)
     end
 end
 
+-- Envía un alerta tipo "raid warning" (banner amarillo central + sonido)
+-- a todos los jugadores conectados. El cliente lo dibuja con
+-- RaidNotice_AddMessage(RaidWarningFrame, ...).
+local function BroadcastAlertToWorld(title, subtitle)
+    if not GetPlayersInWorld then
+        D("BroadcastAlertToWorld: GetPlayersInWorld no disponible.")
+        return
+    end
+
+    local players = GetPlayersInWorld()
+    if not players then return end
+
+    title    = tostring(title or "")
+    subtitle = subtitle and tostring(subtitle) or ""
+
+    for _, p in pairs(players) do
+        if p then
+            AIO.Handle(p, HANDLER, "ShowAlert", title, subtitle)
+        end
+    end
+end
+
 local function IsAdmin(player)
     if not player then
         return false
@@ -747,6 +769,10 @@ CheckEventCompletion = function(player)
 
     if lootedChests >= totalChests then
         SafeWorldMessage("|cff00ccff[Clancy Chest]|r Todos los cofres han sido encontrados. El evento ha finalizado.")
+        BroadcastAlertToWorld(
+            "Cofres Clancy",
+            "Todos los cofres han sido encontrados."
+        )
         Deactivate(nil, "all_chests_looted")
         return
     end
@@ -760,6 +786,11 @@ CheckEventCompletion = function(player)
             ". Quedan " ..
             tostring(remaining) ..
             " cofres por encontrar."
+        )
+
+        BroadcastAlertToWorld(
+            PName(player) .. " ha encontrado un cofre",
+            "Quedan " .. tostring(remaining) .. " cofres."
         )
     end
 end
@@ -830,6 +861,15 @@ local function Activate(player, durationMinutes)
         " minutos. Hay " ..
         tostring(totalChests) ..
         " cofres por encontrar."
+    )
+
+    BroadcastAlertToWorld(
+        "¡Cofres Clancy aparecidos!",
+        "Hay " ..
+        tostring(totalChests) ..
+        " cofres por encontrar. Tienes " ..
+        tostring(math.floor(durationSeconds / 60)) ..
+        " min."
     )
 
     player:SendBroadcastMessage("Evento activado.")
