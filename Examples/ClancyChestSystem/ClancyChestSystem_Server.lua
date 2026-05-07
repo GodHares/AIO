@@ -768,11 +768,30 @@ CheckEventCompletion = function(player)
     end
 
     if lootedChests >= totalChests then
-        SafeWorldMessage("|cff00ccff[Clancy Chest]|r Todos los cofres han sido encontrados. El evento ha finalizado.")
-        BroadcastAlertToWorld(
-            "Cofres Clancy",
-            "Todos los cofres han sido encontrados."
+        local finder = PName(player)
+
+        SafeWorldMessage(
+            "|cff00ccff[Clancy Chest]|r " ..
+            finder ..
+            " ha encontrado el último cofre. ¡Evento finalizado, gracias por participar!"
         )
+
+        BroadcastAlertToWorld(
+            finder .. " ha encontrado el último cofre",
+            "¡Felicidades a todos los participantes!"
+        )
+
+        -- Segunda alerta en cadena unos segundos después para dar
+        -- sensación de "evento cerrado".
+        if CreateLuaEvent then
+            CreateLuaEvent(function()
+                BroadcastAlertToWorld(
+                    "Evento finalizado",
+                    "Gracias por participar."
+                )
+            end, 4000, 1)
+        end
+
         Deactivate(nil, "all_chests_looted")
         return
     end
@@ -780,17 +799,19 @@ CheckEventCompletion = function(player)
     local remaining = totalChests - lootedChests
 
     if CONFIG.ANNOUNCE_FOUND_CHESTS then
+        local finder = PName(player)
+
         SafeWorldMessage(
-            "|cff00ccff[Clancy Chest]|r Cofre encontrado por " ..
-            PName(player) ..
-            ". Quedan " ..
+            "|cff00ccff[Clancy Chest]|r " ..
+            finder ..
+            " ha encontrado un cofre. Aún quedan " ..
             tostring(remaining) ..
-            " cofres por encontrar."
+            " cofres por descubrir."
         )
 
         BroadcastAlertToWorld(
-            PName(player) .. " ha encontrado un cofre",
-            "Quedan " .. tostring(remaining) .. " cofres."
+            finder .. " ha encontrado un cofre",
+            "Aún quedan " .. tostring(remaining) .. " cofres por descubrir."
         )
     end
 end
@@ -855,21 +876,23 @@ local function Activate(player, durationMinutes)
 
     ScheduleStop()
 
+    local minutes = math.floor(durationSeconds / 60)
+
     SafeWorldMessage(
-        "|cff00ccff[Clancy Chest]|r Un evento de cofres ha sido activado por " ..
-        tostring(math.floor(durationSeconds / 60)) ..
-        " minutos. Hay " ..
+        "|cff00ccff[Clancy Chest]|r ¡Han aparecido " ..
         tostring(totalChests) ..
-        " cofres por encontrar."
+        " cofres misteriosos por el mundo! Tienes " ..
+        tostring(minutes) ..
+        " minutos para encontrarlos."
     )
 
     BroadcastAlertToWorld(
-        "¡Cofres Clancy aparecidos!",
-        "Hay " ..
+        "¡Han aparecido cofres misteriosos!",
+        "Se han avistado " ..
         tostring(totalChests) ..
-        " cofres por encontrar. Tienes " ..
-        tostring(math.floor(durationSeconds / 60)) ..
-        " min."
+        " cofres por el mundo. Tienes " ..
+        tostring(minutes) ..
+        " minutos para encontrarlos."
     )
 
     player:SendBroadcastMessage("Evento activado.")
