@@ -278,7 +278,44 @@ end
 --       gold), con activation_id y guid del cofre que lo dio.
 ------------------------------------------------------------
 
-local function EnsureAuditTables()
+local function EnsureTables()
+    -- Tablas operacionales: estado, stock y registro de cofres saqueados.
+    -- Se crean también desde Lua (además de Examples/ClancyChestSystem/
+    -- ClancyChestSystem.sql) para que un primer despliegue no falle
+    -- silenciosamente si el SQL no se importó manualmente.
+    WorldDBExecute(
+        "CREATE TABLE IF NOT EXISTS `custom_clancy_chest_state` (" ..
+        "  `event_key`     VARCHAR(64)  NOT NULL DEFAULT 'default'," ..
+        "  `active`        TINYINT(1)   UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `activation_id` INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `ends_at`       INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  PRIMARY KEY (`event_key`)" ..
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+    )
+
+    WorldDBExecute(
+        "CREATE TABLE IF NOT EXISTS `custom_clancy_chest_stock` (" ..
+        "  `event_key`  VARCHAR(64)  NOT NULL DEFAULT 'default'," ..
+        "  `item_entry` INT UNSIGNED NOT NULL," ..
+        "  `amount`     INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `chance_pct` INT UNSIGNED NOT NULL DEFAULT 100," ..
+        "  PRIMARY KEY (`event_key`, `item_entry`)" ..
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+    )
+
+    WorldDBExecute(
+        "CREATE TABLE IF NOT EXISTS `custom_clancy_chest_loot` (" ..
+        "  `event_key`       VARCHAR(64)  NOT NULL DEFAULT 'default'," ..
+        "  `activation_id`   INT UNSIGNED NOT NULL," ..
+        "  `gameobject_guid` INT UNSIGNED NOT NULL," ..
+        "  `player_guid`     INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  `looted_at`       INT UNSIGNED NOT NULL DEFAULT 0," ..
+        "  PRIMARY KEY (`event_key`, `activation_id`, `gameobject_guid`)," ..
+        "  KEY `idx_player` (`player_guid`)" ..
+        ") ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+    )
+
+    -- Tablas de auditoría.
     WorldDBExecute(
         "CREATE TABLE IF NOT EXISTS `custom_clancy_chest_audit_activations` (" ..
         "  `id`               INT UNSIGNED NOT NULL AUTO_INCREMENT," ..
@@ -1230,7 +1267,6 @@ local function GrantStockToPlayer(player, chestGuid)
                     entry = item.entry,
                     amount = item.amount
                 })
-                LogRewardGranted(player, chestGuid, "honor", item.entry, item.amount)
                 wonAnyItem = true
             elseif kind == "arena" then
                 player:ModifyArenaPoints(item.amount)
@@ -1239,7 +1275,6 @@ local function GrantStockToPlayer(player, chestGuid)
                     entry = item.entry,
                     amount = item.amount
                 })
-                LogRewardGranted(player, chestGuid, "arena", item.entry, item.amount)
                 wonAnyItem = true
             elseif kind == "gold" then
                 player:ModifyMoney(item.amount * 10000)
@@ -1248,7 +1283,6 @@ local function GrantStockToPlayer(player, chestGuid)
                     entry = item.entry,
                     amount = item.amount
                 })
-                LogRewardGranted(player, chestGuid, "gold", item.entry, item.amount)
                 wonAnyItem = true
             else
                 local beforeCount = player:GetItemCount(item.entry)
@@ -1275,7 +1309,6 @@ local function GrantStockToPlayer(player, chestGuid)
                         entry = item.entry,
                         amount = delta
                     })
-                    LogRewardGranted(player, chestGuid, "item", item.entry, delta)
 
                     wonAnyItem = true
                 end
@@ -1291,6 +1324,15 @@ local function GrantStockToPlayer(player, chestGuid)
 
     if not wonAnyItem then
         return true, "No encontraste ningún objeto dentro del cofre."
+    end
+
+    -- Auditoría diferida: sólo se escribe en `custom_clancy_chest_audit_rewards`
+    -- después de que TODOS los premios del cofre se hayan entregado sin
+    -- rollback. Si hubo rollback (return false arriba), no se escribe nada,
+    -- así que el log nunca tiene entradas fantasma de premios que el jugador
+    -- no llegó a recibir realmente.
+    for _, g in ipairs(granted) do
+        LogRewardGranted(player, chestGuid, g.kind, g.entry, g.amount)
     end
 
     -- Construye un resumen legible con la cantidad ganada de cada tipo.
@@ -1594,7 +1636,7 @@ D("ACTIVE_GO_ENTRY=" .. tostring(CONFIG.ACTIVE_GO_ENTRY))
 RegisterGameObjectGossipEvent(CONFIG.PREP_GO_ENTRY, GOSSIP_EVENT_ON_HELLO, OnPrepChestHello)
 RegisterGameObjectGossipEvent(CONFIG.ACTIVE_GO_ENTRY, GOSSIP_EVENT_ON_HELLO, OnActiveChestHello)
 
-EnsureAuditTables()
+EnsureTables()
 LoadState()
 
 if State.active then
