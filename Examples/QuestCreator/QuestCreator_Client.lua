@@ -12,6 +12,7 @@ local frame
 local contentFrame
 local deleteFrame
 local browserStatus
+local browserPageText
 
 local pages = {}
 local fields = {}
@@ -1643,17 +1644,32 @@ local function SetBrowserStatus(msg)
     end
 end
 
+local function SetBrowserPageRange(firstId, lastId)
+    if not browserPageText then return end
+    if firstId and lastId then
+        browserPageText:SetText("IDs " .. tostring(firstId) .. " – " .. tostring(lastId))
+    else
+        browserPageText:SetText("Sin datos")
+    end
+end
+
 local function RenderQuestRows(quests, direction)
     for i = 1, #questRows do
         questRows[i]:Hide()
     end
     if not quests or #quests == 0 then
         SetBrowserStatus("No se recibieron quests.")
+        SetBrowserPageRange(nil, nil)
         Print("No se encontraron quests en la lista recibida.")
         return
     end
     local visibleCount = math.min(#quests, #questRows)
     SetBrowserStatus("Mostrando " .. tostring(visibleCount) .. " de " .. tostring(#quests) .. " quests. Dirección: " .. tostring(direction or "n/a"))
+    local firstShownId = tonumber(quests[1].id) or 0
+    local lastShownId  = tonumber(quests[visibleCount].id) or firstShownId
+    QuestCreator_StreamList.firstShownId = firstShownId
+    QuestCreator_StreamList.lastShownId  = lastShownId
+    SetBrowserPageRange(firstShownId, lastShownId)
     for i = 1, visibleCount do
         local quest = quests[i]
         local row = questRows[i]
@@ -1935,27 +1951,59 @@ local function CreateBrowserPage(parent)
     -- Pagination (centered group of 4 styled buttons with page text in middle)
     local pagination = CreateFrame("Frame", nil, p)
     pagination:SetPoint("BOTTOM", p, "BOTTOM", 0, 6)
-    pagination:SetWidth(300)
+    pagination:SetWidth(360)
     pagination:SetHeight(26)
 
     local btnFirst = CreatePagerButton(pagination, "<<", 30)
     btnFirst:SetPoint("LEFT", pagination, "LEFT", 30, 0)
+    btnFirst:SetScript("OnClick", function()
+        currentListId = 1
+        SetBox("browserStartId", currentListId)
+        SetBrowserStatus("Solicitando primera página desde ID 1...")
+        AIO.Handle("QuestCreator", "ListQuestsForward", currentListId)
+    end)
 
     local btnPrev = CreatePagerButton(pagination, "<", 26)
     btnPrev:SetPoint("LEFT", btnFirst, "RIGHT", 6, 0)
+    btnPrev:SetScript("OnClick", function()
+        local firstShown = tonumber(QuestCreator_StreamList.firstShownId) or 0
+        local target = firstShown - 1
+        if target < 1 then target = 1 end
+        currentListId = target
+        SetBox("browserStartId", currentListId)
+        SetBrowserStatus("Solicitando página anterior hasta ID " .. tostring(currentListId) .. "...")
+        AIO.Handle("QuestCreator", "ListQuestsBackward", currentListId)
+    end)
 
-    local pageText = pagination:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    pageText:SetPoint("CENTER", pagination, "CENTER", 0, 0)
-    pageText:SetWidth(110)
-    pageText:SetJustifyH("CENTER")
-    pageText:SetText("Page 1 of 2")
-    pageText:SetTextColor(GOLD_R, GOLD_G, GOLD_B)
+    browserPageText = pagination:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    browserPageText:SetPoint("CENTER", pagination, "CENTER", 0, 0)
+    browserPageText:SetWidth(160)
+    browserPageText:SetJustifyH("CENTER")
+    browserPageText:SetText("Sin datos")
+    browserPageText:SetTextColor(GOLD_R, GOLD_G, GOLD_B)
 
     local btnNext = CreatePagerButton(pagination, ">", 26)
     btnNext:SetPoint("RIGHT", pagination, "RIGHT", -62, 0)
+    btnNext:SetScript("OnClick", function()
+        local lastShown = tonumber(QuestCreator_StreamList.lastShownId) or 0
+        if lastShown <= 0 then
+            lastShown = (tonumber(currentListId) or 1) - 1
+        end
+        currentListId = lastShown + 1
+        if currentListId < 1 then currentListId = 1 end
+        SetBox("browserStartId", currentListId)
+        SetBrowserStatus("Solicitando página siguiente desde ID " .. tostring(currentListId) .. "...")
+        AIO.Handle("QuestCreator", "ListQuestsForward", currentListId)
+    end)
 
     local btnLast = CreatePagerButton(pagination, ">>", 30)
     btnLast:SetPoint("LEFT", btnNext, "RIGHT", 6, 0)
+    btnLast:SetScript("OnClick", function()
+        currentListId = 999999
+        SetBox("browserStartId", currentListId)
+        SetBrowserStatus("Solicitando última página (backward desde ID 999999)...")
+        AIO.Handle("QuestCreator", "ListQuestsBackward", currentListId)
+    end)
 end
 
 local function CollectObjectiveLines()
