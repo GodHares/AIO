@@ -1015,7 +1015,8 @@ local function ShowHelpDialog()
     local f = QuestCreator._helpFrame
     if not f then
         f = CreateFrame("Frame", "QuestCreatorHelpFrame", UIParent)
-        f:SetFrameStrata("DIALOG")
+        f:SetFrameStrata("FULLSCREEN_DIALOG")
+        f:SetToplevel(true)
         f:SetWidth(560)
         f:SetHeight(440)
         f:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
@@ -1078,6 +1079,7 @@ local function ShowHelpDialog()
     if h < 360 then h = 360 end
     f.bodyContent:SetHeight(h)
     f:Show()
+    f:Raise()
 end
 
 local function CreateTabButton(parent, text, x, y, width, height)
