@@ -23,8 +23,9 @@ local LOCALE_DISPLAY = {
     es   = "Español",
     ptBR = "Português (BR)",
     fr   = "Français",
+    bg   = "Български",
 }
-local LOCALE_ORDER = { "en", "es", "ptBR", "fr" }
+local LOCALE_ORDER = { "en", "es", "ptBR", "fr", "bg" }
 
 local LOCALES = {
     en = {
@@ -459,6 +460,114 @@ local LOCALES = {
 "  Les suppressions sont limitées au range custom (CustomQuestMinId..CustomQuestMaxId). Supprimer chaîne refuse également si la chaîne sort dans le range officiel, sauf si AllowDeleteOutsideCustomRange est activé côté serveur.\n\n" ..
 "Toutes les actions passent par la couche RPC d'AIO : le client n'écrit jamais directement en base.",
     },
+    bg = {
+        APP_TITLE             = "AzerothCore Quest Builder Visual V4",
+        BTN_VALIDATE          = "Провери",
+        BTN_SAVE              = "Запази",
+        BTN_CLEAR             = "Изчисти",
+        LBL_LANGUAGE          = "Език",
+        TAB_BASIC             = "Основни",
+        TAB_TEXTS             = "Текстове",
+        TAB_OBJECTIVES        = "Задачи",
+        TAB_REWARDS           = "Награди",
+        TAB_REPUTATION        = "Репутация",
+        TAB_CHAIN             = "Верига",
+        TAB_STARTER           = "Начало",
+        TAB_ADVANCED          = "Разширени",
+        TAB_QUEST_LIST        = "Списък с куестове",
+        TAB_PREVIEW           = "Преглед",
+        QUEST_LIST_TITLE      = "СПИСЪК С КУЕСТОВЕ",
+        BTN_BACK              = "<< Назад",
+        BTN_FORWARD           = "Напред >>",
+        BTN_SEARCH            = "Търсене",
+        BTN_RELOAD_LIST       = "Презареди списъка",
+        LBL_START_ID          = "Начален ID",
+        LBL_NEW_COPY_ID       = "ID на копието",
+        COL_ID                = "ID",
+        COL_QUEST_TITLE       = "ЗАГЛАВИЕ",
+        COL_LVL               = "НИВО",
+        COL_MIN               = "МИН",
+        COL_MAX               = "МАКС",
+        COL_NEXT_QUEST        = "СЛЕДВАЩ",
+        ROW_LVL_PREFIX        = "Ниво",
+        ROW_MIN_PREFIX        = "Мин",
+        ROW_NEXT_PREFIX       = "След",
+        BTN_LOAD              = "Зареди",
+        BTN_COPY              = "Копирай",
+        BTN_DELETE            = "Изтрий",
+        BTN_DEL_CHAIN         = "Изтр. верига",
+        PAGER_NO_DATA         = "Няма данни",
+        PAGER_IDS_RANGE       = "ID %s – %s",
+        STATUS_REQ_FIRST      = "Заявка за първа страница от ID 1...",
+        STATUS_REQ_PREV       = "Заявка за предишна страница до ID %s...",
+        STATUS_REQ_NEXT       = "Заявка за следваща страница от ID %s...",
+        STATUS_REQ_LAST       = "Заявка за последна страница (backward от ID 999999)...",
+        STATUS_RECEIVING      = "Получаване на поток куестове... очаквани: %s",
+        STATUS_STREAM_DONE    = "Поток получен: %s куестове.",
+        STATUS_NO_QUESTS      = "Не са получени куестове.",
+        STATUS_SHOWING        = "Показани %s от %s куестове. Посока: %s",
+        CARD_QUEST_SUMMARY    = "Обобщение на куеста",
+        CARD_PREVIEW_CONTROLS = "Управление на преглед",
+        TITLE_STARTER_ENDER   = "Начало / Край",
+        TITLE_QUICK_REWARD    = "Кратко обобщение на наградите",
+        LBL_QUEST_ID          = "ID на куест",
+        LBL_TITLE             = "Заглавие",
+        LBL_QUEST_TYPE        = "Тип",
+        LBL_QUEST_LEVEL       = "Ниво",
+        LBL_MIN_LEVEL         = "Мин. ниво",
+        LBL_QUEST_INFO        = "Информация",
+        LBL_FLAGS             = "Флагове",
+        LBL_SPECIAL_FLAGS     = "Спец. флагове",
+        LBL_START_NPC         = "Начален NPC",
+        LBL_END_NPC           = "Краен NPC",
+        BTN_OFFER             = "Предложи",
+        BTN_IN_PROGRESS       = "В ход",
+        BTN_READY             = "Готова",
+        BTN_REWARD_PREVIEW    = "Преглед на наградите",
+        CHK_SHOW_OBJECTIVES   = "Показвай задачите",
+        CHK_SHOW_REWARDS      = "Показвай наградите",
+        CHK_SHOW_PORTRAIT     = "Показвай портрета",
+        CHK_USE_PLAYER_TOKENS = "Използвай токени на играча ($N, $C)",
+        BTN_ACCEPT            = "Приеми",
+        BTN_REJECT            = "Откажи",
+        BTN_CONTINUE          = "Продължи",
+        BTN_CLOSE             = "Затвори",
+        BTN_COMPLETE          = "Завърши",
+        BTN_CANCEL            = "Отказ",
+        LBL_REWARDS_HINT_1    = "Пълните награди се показват",
+        LBL_REWARDS_HINT_2    = "в централния превъртаем пергамент.",
+        LBL_REPUTATION        = "Репутация",
+        LBL_HONOR             = "Чест",
+        LBL_XP                = "Опит",
+        LBL_MONEY             = "Пари",
+        MSG_DELETE_CHAIN_TITLE = "Изтриване на веригата",
+        MSG_DELETE_CHAIN_BODY  = "Ще изтриете верига, започваща от куест %s\n\nRewardNextQuest ще бъде проследен напред." ..
+                                 "\n\nЗа потвърждение напишете:\nDELETE CHAIN %s",
+        HELP_TITLE             = "AzerothCore Quest Builder — Помощ",
+        HELP_BODY              =
+"Този addon е пълен редактор на персонализирани куестове за AzerothCore, изграден върху AIO.\n\n" ..
+"|cffffd87aБутони в горната лента|r\n" ..
+"  ?         Отваря тази помощ.\n" ..
+"  Провери   Иска от сървъра да валидира формуляра, без да го запазва.\n" ..
+"  Запази    Записва куеста в базата данни.\n" ..
+"  Изчисти   Нулира всички полета в редактора.\n\n" ..
+"|cffffd87aЕзик|r\n" ..
+"  Меню горе вляво. Поддържани езици: English, Español, Português (BR), Français, Български. Изборът се запазва между сесии; други клиенти падат до английски.\n\n" ..
+"|cffffd87aРаздели|r\n" ..
+"  Основни        ID, заглавие, тип, ниво, минимално ниво, флагове и специални флагове.\n" ..
+"  Текстове       Описание в дневника, описание на куеста, описание на зоната и completion log.\n" ..
+"  Задачи         До 4 задачи (същество/обект/предмет/заклинание/зона) и ID на emote.\n" ..
+"  Награди        Предмети, предмети по избор, пари, трудност на XP, чест, kill honor, титла, талант и арена точки.\n" ..
+"  Репутация      Две награди за фракция (faction id + стойност, в raw и override версии).\n" ..
+"  Верига         Предишен куест, следващ куест, exclusive group и breadcrumb.\n" ..
+"  Начало         Начален и краен NPC / GameObject, изходен предмет.\n" ..
+"  Разширени      Изисквани раси / класове, предложени играчи, лимит на време, зона, точка на интерес.\n" ..
+"  Списък с куестове  Подреден по страници браузър върху твоя custom range: търсене по текст, скок по ID, Зареди, Копирай, Изтрий и Изтрий верига.\n" ..
+"  Преглед        Живи преглед на куеста в стила на WoW със състояния Предложи / В ход / Готова / Преглед на наградите, превключватели за задачи / награди / портрет / токени на играча, и кратко обобщение на наградите.\n\n" ..
+"|cffffd87aСигурност|r\n" ..
+"  Изтриванията са ограничени в custom range (CustomQuestMinId..CustomQuestMaxId). Изтрий верига също отказва, ако веригата излезе в официалния range, освен ако AllowDeleteOutsideCustomRange е включено на сървъра.\n\n" ..
+"Всички действия минават през RPC слоя на AIO: клиентът никога не пише директно в базата.",
+    },
 }
 
 local function GetSelectedLocale()
@@ -469,6 +578,7 @@ local function GetSelectedLocale()
     if c == "esES" or c == "esMX" then return "es"
     elseif c == "ptBR" then return "ptBR"
     elseif c == "frFR" then return "fr"
+    elseif c == "bgBG" then return "bg"
     end
     return "en"
 end
