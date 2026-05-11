@@ -8,6 +8,480 @@ local QuestCreator = AIO.AddHandlers("QuestCreator", {})
 
 DEFAULT_CHAT_FRAME:AddMessage("|cff00ff00QuestCreator CLIENT VERSION: QUESTCREATOR-V11-ITEM-TOOLTIP-PREVIEW-2026-05-08|r")
 
+-- =========================================================
+-- Localization (i18n)
+-- Supported: en, es, ptBR, ru, fr. Fallback: en.
+-- =========================================================
+
+QuestCreator_Settings = QuestCreator_Settings or {}
+if AIO and AIO.AddSavedVar then
+    AIO.AddSavedVar("QuestCreator_Settings")
+end
+
+local LOCALE_DISPLAY = {
+    en   = "English",
+    es   = "Español",
+    ptBR = "Português (BR)",
+    ru   = "Русский",
+    fr   = "Français",
+}
+local LOCALE_ORDER = { "en", "es", "ptBR", "ru", "fr" }
+
+local LOCALES = {
+    en = {
+        APP_TITLE             = "AzerothCore Quest Builder Visual V4",
+        BTN_VALIDATE          = "Validate",
+        BTN_SAVE              = "Save",
+        BTN_CLEAR             = "Clear",
+        LBL_LANGUAGE          = "Language",
+        TAB_BASIC             = "Basic",
+        TAB_TEXTS             = "Texts",
+        TAB_OBJECTIVES        = "Objectives",
+        TAB_REWARDS           = "Rewards",
+        TAB_REPUTATION        = "Reputation",
+        TAB_CHAIN             = "Chain",
+        TAB_STARTER           = "Starter",
+        TAB_ADVANCED          = "Advanced",
+        TAB_QUEST_LIST        = "Quest List",
+        TAB_PREVIEW           = "Preview",
+        QUEST_LIST_TITLE      = "QUEST LIST",
+        BTN_BACK              = "<< Back",
+        BTN_FORWARD           = "Forward >>",
+        BTN_SEARCH            = "Search",
+        BTN_RELOAD_LIST       = "Reload List",
+        LBL_START_ID          = "Start ID",
+        LBL_NEW_COPY_ID       = "New Copy ID",
+        COL_ID                = "ID",
+        COL_QUEST_TITLE       = "QUEST TITLE",
+        COL_LVL               = "LVL",
+        COL_MIN               = "MIN",
+        COL_MAX               = "MAX",
+        COL_NEXT_QUEST        = "NEXT QUEST",
+        ROW_LVL_PREFIX        = "Lvl",
+        ROW_MIN_PREFIX        = "Min",
+        ROW_NEXT_PREFIX       = "Next",
+        BTN_LOAD              = "Load",
+        BTN_COPY              = "Copy",
+        BTN_DELETE            = "Delete",
+        BTN_DEL_CHAIN         = "Del Chain",
+        PAGER_NO_DATA         = "No data",
+        PAGER_IDS_RANGE       = "IDs %s – %s",
+        STATUS_REQ_FIRST      = "Requesting first page from ID 1...",
+        STATUS_REQ_PREV       = "Requesting previous page up to ID %s...",
+        STATUS_REQ_NEXT       = "Requesting next page from ID %s...",
+        STATUS_REQ_LAST       = "Requesting last page (backward from ID 999999)...",
+        STATUS_RECEIVING      = "Receiving quest stream... expected: %s",
+        STATUS_STREAM_DONE    = "Stream received: %s quests.",
+        STATUS_NO_QUESTS      = "No quests received.",
+        STATUS_SHOWING        = "Showing %s of %s quests. Direction: %s",
+        CARD_QUEST_SUMMARY    = "Quest Summary",
+        CARD_PREVIEW_CONTROLS = "Preview Controls",
+        TITLE_STARTER_ENDER   = "Starter / Ender",
+        TITLE_QUICK_REWARD    = "Quick Reward Summary",
+        LBL_QUEST_ID          = "Quest ID",
+        LBL_TITLE             = "Title",
+        LBL_QUEST_TYPE        = "QuestType",
+        LBL_QUEST_LEVEL       = "QuestLevel",
+        LBL_MIN_LEVEL         = "MinLevel",
+        LBL_QUEST_INFO        = "QuestInfo",
+        LBL_FLAGS             = "Flags",
+        LBL_SPECIAL_FLAGS     = "SpecialFlags",
+        LBL_START_NPC         = "Start NPC",
+        LBL_END_NPC           = "End NPC",
+        BTN_OFFER             = "Offer",
+        BTN_IN_PROGRESS       = "In Progress",
+        BTN_READY             = "Ready",
+        BTN_REWARD_PREVIEW    = "Reward Preview",
+        CHK_SHOW_OBJECTIVES   = "Show Objectives",
+        CHK_SHOW_REWARDS      = "Show Rewards",
+        CHK_SHOW_PORTRAIT     = "Show Portrait",
+        CHK_USE_PLAYER_TOKENS = "Use Player Tokens ($N, $C)",
+        BTN_ACCEPT            = "Accept",
+        BTN_REJECT            = "Reject",
+        BTN_CONTINUE          = "Continue",
+        BTN_CLOSE             = "Close",
+        BTN_COMPLETE          = "Complete",
+        BTN_CANCEL            = "Cancel",
+        LBL_REWARDS_HINT_1    = "Full rewards are displayed",
+        LBL_REWARDS_HINT_2    = "inside the central scrollable parchment.",
+        LBL_REPUTATION        = "Reputation",
+        LBL_HONOR             = "Honor",
+        LBL_XP                = "XP",
+        LBL_MONEY             = "Money",
+        MSG_DELETE_CHAIN_TITLE = "Delete Chain",
+        MSG_DELETE_CHAIN_BODY  = "You are about to delete a chain starting at quest %s\n\nRewardNextQuest will be followed forward." ..
+                                 "\n\nTo confirm type:\nDELETE CHAIN %s",
+    },
+    es = {
+        APP_TITLE             = "AzerothCore Quest Builder Visual V4",
+        BTN_VALIDATE          = "Validar",
+        BTN_SAVE              = "Guardar",
+        BTN_CLEAR             = "Limpiar",
+        LBL_LANGUAGE          = "Idioma",
+        TAB_BASIC             = "Básico",
+        TAB_TEXTS             = "Textos",
+        TAB_OBJECTIVES        = "Objetivos",
+        TAB_REWARDS           = "Recompensas",
+        TAB_REPUTATION        = "Reputación",
+        TAB_CHAIN             = "Cadena",
+        TAB_STARTER           = "Inicio",
+        TAB_ADVANCED          = "Avanzado",
+        TAB_QUEST_LIST        = "Lista de quests",
+        TAB_PREVIEW           = "Vista previa",
+        QUEST_LIST_TITLE      = "LISTA DE QUESTS",
+        BTN_BACK              = "<< Atrás",
+        BTN_FORWARD           = "Adelante >>",
+        BTN_SEARCH            = "Buscar",
+        BTN_RELOAD_LIST       = "Recargar lista",
+        LBL_START_ID          = "ID inicial",
+        LBL_NEW_COPY_ID       = "ID de la copia",
+        COL_ID                = "ID",
+        COL_QUEST_TITLE       = "TÍTULO",
+        COL_LVL               = "LVL",
+        COL_MIN               = "MIN",
+        COL_MAX               = "MAX",
+        COL_NEXT_QUEST        = "SIGUIENTE",
+        ROW_LVL_PREFIX        = "Lvl",
+        ROW_MIN_PREFIX        = "Min",
+        ROW_NEXT_PREFIX       = "Sig.",
+        BTN_LOAD              = "Cargar",
+        BTN_COPY              = "Copiar",
+        BTN_DELETE            = "Borrar",
+        BTN_DEL_CHAIN         = "Borrar cadena",
+        PAGER_NO_DATA         = "Sin datos",
+        PAGER_IDS_RANGE       = "IDs %s – %s",
+        STATUS_REQ_FIRST      = "Solicitando primera página desde ID 1...",
+        STATUS_REQ_PREV       = "Solicitando página anterior hasta ID %s...",
+        STATUS_REQ_NEXT       = "Solicitando página siguiente desde ID %s...",
+        STATUS_REQ_LAST       = "Solicitando última página (backward desde ID 999999)...",
+        STATUS_RECEIVING      = "Recibiendo stream de quests... esperado: %s",
+        STATUS_STREAM_DONE    = "Stream recibido: %s quests.",
+        STATUS_NO_QUESTS      = "No se recibieron quests.",
+        STATUS_SHOWING        = "Mostrando %s de %s quests. Dirección: %s",
+        CARD_QUEST_SUMMARY    = "Resumen de quest",
+        CARD_PREVIEW_CONTROLS = "Controles de vista previa",
+        TITLE_STARTER_ENDER   = "Inicio / Fin",
+        TITLE_QUICK_REWARD    = "Resumen de recompensas",
+        LBL_QUEST_ID          = "ID de quest",
+        LBL_TITLE             = "Título",
+        LBL_QUEST_TYPE        = "Tipo",
+        LBL_QUEST_LEVEL       = "Nivel",
+        LBL_MIN_LEVEL         = "Nivel mínimo",
+        LBL_QUEST_INFO        = "Info",
+        LBL_FLAGS             = "Flags",
+        LBL_SPECIAL_FLAGS     = "Flags especiales",
+        LBL_START_NPC         = "NPC inicial",
+        LBL_END_NPC           = "NPC final",
+        BTN_OFFER             = "Ofrecer",
+        BTN_IN_PROGRESS       = "En curso",
+        BTN_READY             = "Lista",
+        BTN_REWARD_PREVIEW    = "Vista de recompensa",
+        CHK_SHOW_OBJECTIVES   = "Mostrar objetivos",
+        CHK_SHOW_REWARDS      = "Mostrar recompensas",
+        CHK_SHOW_PORTRAIT     = "Mostrar retrato",
+        CHK_USE_PLAYER_TOKENS = "Usar tokens del jugador ($N, $C)",
+        BTN_ACCEPT            = "Aceptar",
+        BTN_REJECT            = "Rechazar",
+        BTN_CONTINUE          = "Continuar",
+        BTN_CLOSE             = "Cerrar",
+        BTN_COMPLETE          = "Completar",
+        BTN_CANCEL            = "Cancelar",
+        LBL_REWARDS_HINT_1    = "Las recompensas completas se muestran",
+        LBL_REWARDS_HINT_2    = "dentro del pergamino central con scroll.",
+        LBL_REPUTATION        = "Reputación",
+        LBL_HONOR             = "Honor",
+        LBL_XP                = "XP",
+        LBL_MONEY             = "Dinero",
+        MSG_DELETE_CHAIN_TITLE = "Borrar cadena",
+        MSG_DELETE_CHAIN_BODY  = "Vas a borrar una cadena desde quest %s\n\nSe seguirá RewardNextQuest hacia adelante." ..
+                                 "\n\nPara confirmar escribe:\nDELETE CHAIN %s",
+    },
+    ptBR = {
+        APP_TITLE             = "AzerothCore Quest Builder Visual V4",
+        BTN_VALIDATE          = "Validar",
+        BTN_SAVE              = "Salvar",
+        BTN_CLEAR             = "Limpar",
+        LBL_LANGUAGE          = "Idioma",
+        TAB_BASIC             = "Básico",
+        TAB_TEXTS             = "Textos",
+        TAB_OBJECTIVES        = "Objetivos",
+        TAB_REWARDS           = "Recompensas",
+        TAB_REPUTATION        = "Reputação",
+        TAB_CHAIN             = "Cadeia",
+        TAB_STARTER           = "Início",
+        TAB_ADVANCED          = "Avançado",
+        TAB_QUEST_LIST        = "Lista de quests",
+        TAB_PREVIEW           = "Pré-visualizar",
+        QUEST_LIST_TITLE      = "LISTA DE QUESTS",
+        BTN_BACK              = "<< Voltar",
+        BTN_FORWARD           = "Avançar >>",
+        BTN_SEARCH            = "Buscar",
+        BTN_RELOAD_LIST       = "Recarregar lista",
+        LBL_START_ID          = "ID inicial",
+        LBL_NEW_COPY_ID       = "ID da cópia",
+        COL_ID                = "ID",
+        COL_QUEST_TITLE       = "TÍTULO",
+        COL_LVL               = "LVL",
+        COL_MIN               = "MIN",
+        COL_MAX               = "MAX",
+        COL_NEXT_QUEST        = "PRÓXIMA",
+        ROW_LVL_PREFIX        = "Lvl",
+        ROW_MIN_PREFIX        = "Min",
+        ROW_NEXT_PREFIX       = "Próx.",
+        BTN_LOAD              = "Carregar",
+        BTN_COPY              = "Copiar",
+        BTN_DELETE            = "Excluir",
+        BTN_DEL_CHAIN         = "Excl. cadeia",
+        PAGER_NO_DATA         = "Sem dados",
+        PAGER_IDS_RANGE       = "IDs %s – %s",
+        STATUS_REQ_FIRST      = "Solicitando primeira página a partir do ID 1...",
+        STATUS_REQ_PREV       = "Solicitando página anterior até o ID %s...",
+        STATUS_REQ_NEXT       = "Solicitando próxima página a partir do ID %s...",
+        STATUS_REQ_LAST       = "Solicitando última página (backward a partir do ID 999999)...",
+        STATUS_RECEIVING      = "Recebendo stream de quests... esperado: %s",
+        STATUS_STREAM_DONE    = "Stream recebido: %s quests.",
+        STATUS_NO_QUESTS      = "Nenhuma quest recebida.",
+        STATUS_SHOWING        = "Exibindo %s de %s quests. Direção: %s",
+        CARD_QUEST_SUMMARY    = "Resumo da quest",
+        CARD_PREVIEW_CONTROLS = "Controles da pré-visualização",
+        TITLE_STARTER_ENDER   = "Início / Fim",
+        TITLE_QUICK_REWARD    = "Resumo de recompensas",
+        LBL_QUEST_ID          = "ID da quest",
+        LBL_TITLE             = "Título",
+        LBL_QUEST_TYPE        = "Tipo",
+        LBL_QUEST_LEVEL       = "Nível",
+        LBL_MIN_LEVEL         = "Nível mínimo",
+        LBL_QUEST_INFO        = "Info",
+        LBL_FLAGS             = "Flags",
+        LBL_SPECIAL_FLAGS     = "Flags especiais",
+        LBL_START_NPC         = "NPC inicial",
+        LBL_END_NPC           = "NPC final",
+        BTN_OFFER             = "Oferecer",
+        BTN_IN_PROGRESS       = "Em andamento",
+        BTN_READY             = "Pronta",
+        BTN_REWARD_PREVIEW    = "Prévia recompensas",
+        CHK_SHOW_OBJECTIVES   = "Mostrar objetivos",
+        CHK_SHOW_REWARDS      = "Mostrar recompensas",
+        CHK_SHOW_PORTRAIT     = "Mostrar retrato",
+        CHK_USE_PLAYER_TOKENS = "Usar tokens do jogador ($N, $C)",
+        BTN_ACCEPT            = "Aceitar",
+        BTN_REJECT            = "Recusar",
+        BTN_CONTINUE          = "Continuar",
+        BTN_CLOSE             = "Fechar",
+        BTN_COMPLETE          = "Concluir",
+        BTN_CANCEL            = "Cancelar",
+        LBL_REWARDS_HINT_1    = "As recompensas completas aparecem",
+        LBL_REWARDS_HINT_2    = "no pergaminho central com rolagem.",
+        LBL_REPUTATION        = "Reputação",
+        LBL_HONOR             = "Honra",
+        LBL_XP                = "XP",
+        LBL_MONEY             = "Dinheiro",
+        MSG_DELETE_CHAIN_TITLE = "Excluir cadeia",
+        MSG_DELETE_CHAIN_BODY  = "Você vai excluir uma cadeia a partir da quest %s\n\nRewardNextQuest será seguido adiante." ..
+                                 "\n\nPara confirmar digite:\nDELETE CHAIN %s",
+    },
+    ru = {
+        APP_TITLE             = "AzerothCore Quest Builder Visual V4",
+        BTN_VALIDATE          = "Проверить",
+        BTN_SAVE              = "Сохранить",
+        BTN_CLEAR             = "Очистить",
+        LBL_LANGUAGE          = "Язык",
+        TAB_BASIC             = "Основное",
+        TAB_TEXTS             = "Тексты",
+        TAB_OBJECTIVES        = "Задачи",
+        TAB_REWARDS           = "Награды",
+        TAB_REPUTATION        = "Репутация",
+        TAB_CHAIN             = "Цепочка",
+        TAB_STARTER           = "Начало",
+        TAB_ADVANCED          = "Дополнительно",
+        TAB_QUEST_LIST        = "Список квестов",
+        TAB_PREVIEW           = "Предпросмотр",
+        QUEST_LIST_TITLE      = "СПИСОК КВЕСТОВ",
+        BTN_BACK              = "<< Назад",
+        BTN_FORWARD           = "Вперёд >>",
+        BTN_SEARCH            = "Поиск",
+        BTN_RELOAD_LIST       = "Обновить список",
+        LBL_START_ID          = "Начальный ID",
+        LBL_NEW_COPY_ID       = "ID копии",
+        COL_ID                = "ID",
+        COL_QUEST_TITLE       = "НАЗВАНИЕ",
+        COL_LVL               = "УР",
+        COL_MIN               = "МИН",
+        COL_MAX               = "МАКС",
+        COL_NEXT_QUEST        = "СЛЕД. КВЕСТ",
+        ROW_LVL_PREFIX        = "Ур.",
+        ROW_MIN_PREFIX        = "Мин.",
+        ROW_NEXT_PREFIX       = "След.",
+        BTN_LOAD              = "Загрузить",
+        BTN_COPY              = "Копировать",
+        BTN_DELETE            = "Удалить",
+        BTN_DEL_CHAIN         = "Уд. цепочку",
+        PAGER_NO_DATA         = "Нет данных",
+        PAGER_IDS_RANGE       = "ID %s – %s",
+        STATUS_REQ_FIRST      = "Запрос первой страницы с ID 1...",
+        STATUS_REQ_PREV       = "Запрос предыдущей страницы до ID %s...",
+        STATUS_REQ_NEXT       = "Запрос следующей страницы с ID %s...",
+        STATUS_REQ_LAST       = "Запрос последней страницы (backward с ID 999999)...",
+        STATUS_RECEIVING      = "Получение потока квестов... ожидается: %s",
+        STATUS_STREAM_DONE    = "Поток получен: %s квестов.",
+        STATUS_NO_QUESTS      = "Квесты не получены.",
+        STATUS_SHOWING        = "Показано %s из %s квестов. Направление: %s",
+        CARD_QUEST_SUMMARY    = "Сводка квеста",
+        CARD_PREVIEW_CONTROLS = "Управление предпросмотром",
+        TITLE_STARTER_ENDER   = "Начало / Конец",
+        TITLE_QUICK_REWARD    = "Сводка наград",
+        LBL_QUEST_ID          = "ID квеста",
+        LBL_TITLE             = "Название",
+        LBL_QUEST_TYPE        = "Тип",
+        LBL_QUEST_LEVEL       = "Уровень",
+        LBL_MIN_LEVEL         = "Мин. уровень",
+        LBL_QUEST_INFO        = "Описание",
+        LBL_FLAGS             = "Флаги",
+        LBL_SPECIAL_FLAGS     = "Спец. флаги",
+        LBL_START_NPC         = "Начальный NPC",
+        LBL_END_NPC           = "Конечный NPC",
+        BTN_OFFER             = "Предложение",
+        BTN_IN_PROGRESS       = "В процессе",
+        BTN_READY             = "Готова",
+        BTN_REWARD_PREVIEW    = "Просмотр наград",
+        CHK_SHOW_OBJECTIVES   = "Показывать задачи",
+        CHK_SHOW_REWARDS      = "Показывать награды",
+        CHK_SHOW_PORTRAIT     = "Показывать портрет",
+        CHK_USE_PLAYER_TOKENS = "Использовать токены игрока ($N, $C)",
+        BTN_ACCEPT            = "Принять",
+        BTN_REJECT            = "Отказаться",
+        BTN_CONTINUE          = "Продолжить",
+        BTN_CLOSE             = "Закрыть",
+        BTN_COMPLETE          = "Завершить",
+        BTN_CANCEL            = "Отмена",
+        LBL_REWARDS_HINT_1    = "Полный список наград показан",
+        LBL_REWARDS_HINT_2    = "в центральном пергаменте с прокруткой.",
+        LBL_REPUTATION        = "Репутация",
+        LBL_HONOR             = "Честь",
+        LBL_XP                = "Опыт",
+        LBL_MONEY             = "Деньги",
+        MSG_DELETE_CHAIN_TITLE = "Удалить цепочку",
+        MSG_DELETE_CHAIN_BODY  = "Вы собираетесь удалить цепочку, начиная с квеста %s\n\nRewardNextQuest будет пройден вперёд." ..
+                                 "\n\nДля подтверждения введите:\nDELETE CHAIN %s",
+    },
+    fr = {
+        APP_TITLE             = "AzerothCore Quest Builder Visual V4",
+        BTN_VALIDATE          = "Valider",
+        BTN_SAVE              = "Enregistrer",
+        BTN_CLEAR             = "Effacer",
+        LBL_LANGUAGE          = "Langue",
+        TAB_BASIC             = "Basique",
+        TAB_TEXTS             = "Textes",
+        TAB_OBJECTIVES        = "Objectifs",
+        TAB_REWARDS           = "Récompenses",
+        TAB_REPUTATION        = "Réputation",
+        TAB_CHAIN             = "Chaîne",
+        TAB_STARTER           = "Donneur",
+        TAB_ADVANCED          = "Avancé",
+        TAB_QUEST_LIST        = "Liste des quêtes",
+        TAB_PREVIEW           = "Aperçu",
+        QUEST_LIST_TITLE      = "LISTE DES QUÊTES",
+        BTN_BACK              = "<< Retour",
+        BTN_FORWARD           = "Suivant >>",
+        BTN_SEARCH            = "Rechercher",
+        BTN_RELOAD_LIST       = "Recharger la liste",
+        LBL_START_ID          = "ID de départ",
+        LBL_NEW_COPY_ID       = "ID de la copie",
+        COL_ID                = "ID",
+        COL_QUEST_TITLE       = "TITRE",
+        COL_LVL               = "NIV",
+        COL_MIN               = "MIN",
+        COL_MAX               = "MAX",
+        COL_NEXT_QUEST        = "QUÊTE SUIV.",
+        ROW_LVL_PREFIX        = "Niv.",
+        ROW_MIN_PREFIX        = "Min",
+        ROW_NEXT_PREFIX       = "Suiv.",
+        BTN_LOAD              = "Charger",
+        BTN_COPY              = "Copier",
+        BTN_DELETE            = "Supprimer",
+        BTN_DEL_CHAIN         = "Suppr. chaîne",
+        PAGER_NO_DATA         = "Aucune donnée",
+        PAGER_IDS_RANGE       = "IDs %s – %s",
+        STATUS_REQ_FIRST      = "Demande de la première page depuis l'ID 1...",
+        STATUS_REQ_PREV       = "Demande de la page précédente jusqu'à l'ID %s...",
+        STATUS_REQ_NEXT       = "Demande de la page suivante depuis l'ID %s...",
+        STATUS_REQ_LAST       = "Demande de la dernière page (backward depuis l'ID 999999)...",
+        STATUS_RECEIVING      = "Réception du flux de quêtes... attendu : %s",
+        STATUS_STREAM_DONE    = "Flux reçu : %s quêtes.",
+        STATUS_NO_QUESTS      = "Aucune quête reçue.",
+        STATUS_SHOWING        = "Affichage de %s sur %s quêtes. Sens : %s",
+        CARD_QUEST_SUMMARY    = "Résumé de la quête",
+        CARD_PREVIEW_CONTROLS = "Contrôles de l'aperçu",
+        TITLE_STARTER_ENDER   = "Donneur / Fin",
+        TITLE_QUICK_REWARD    = "Résumé des récompenses",
+        LBL_QUEST_ID          = "ID de quête",
+        LBL_TITLE             = "Titre",
+        LBL_QUEST_TYPE        = "Type",
+        LBL_QUEST_LEVEL       = "Niveau",
+        LBL_MIN_LEVEL         = "Niveau min",
+        LBL_QUEST_INFO        = "Info",
+        LBL_FLAGS             = "Flags",
+        LBL_SPECIAL_FLAGS     = "Flags spéciaux",
+        LBL_START_NPC         = "PNJ initial",
+        LBL_END_NPC           = "PNJ final",
+        BTN_OFFER             = "Proposer",
+        BTN_IN_PROGRESS       = "En cours",
+        BTN_READY             = "Prête",
+        BTN_REWARD_PREVIEW    = "Aperçu récompense",
+        CHK_SHOW_OBJECTIVES   = "Afficher objectifs",
+        CHK_SHOW_REWARDS      = "Afficher récompenses",
+        CHK_SHOW_PORTRAIT     = "Afficher portrait",
+        CHK_USE_PLAYER_TOKENS = "Utiliser les jetons du joueur ($N, $C)",
+        BTN_ACCEPT            = "Accepter",
+        BTN_REJECT            = "Refuser",
+        BTN_CONTINUE          = "Continuer",
+        BTN_CLOSE             = "Fermer",
+        BTN_COMPLETE          = "Terminer",
+        BTN_CANCEL            = "Annuler",
+        LBL_REWARDS_HINT_1    = "Les récompenses complètes s'affichent",
+        LBL_REWARDS_HINT_2    = "dans le parchemin central avec défilement.",
+        LBL_REPUTATION        = "Réputation",
+        LBL_HONOR             = "Honneur",
+        LBL_XP                = "XP",
+        LBL_MONEY             = "Argent",
+        MSG_DELETE_CHAIN_TITLE = "Supprimer la chaîne",
+        MSG_DELETE_CHAIN_BODY  = "Vous allez supprimer une chaîne à partir de la quête %s\n\nRewardNextQuest sera suivi vers l'avant." ..
+                                 "\n\nPour confirmer, tapez :\nDELETE CHAIN %s",
+    },
+}
+
+local function GetSelectedLocale()
+    if QuestCreator_Settings.locale and LOCALES[QuestCreator_Settings.locale] then
+        return QuestCreator_Settings.locale
+    end
+    local c = (GetLocale and GetLocale()) or "enUS"
+    if c == "esES" or c == "esMX" then return "es"
+    elseif c == "ptBR" then return "ptBR"
+    elseif c == "ruRU" then return "ru"
+    elseif c == "frFR" then return "fr"
+    end
+    return "en"
+end
+
+local L = setmetatable({}, {
+    __index = function(_, key)
+        local locale = GetSelectedLocale()
+        local localeTable = LOCALES[locale] or LOCALES.en
+        local v = localeTable[key]
+        if v ~= nil then return v end
+        local en = LOCALES.en[key]
+        if en ~= nil then return en end
+        return key
+    end
+})
+
+local function SetClientLocale(locale)
+    if not LOCALES[locale] then return false end
+    QuestCreator_Settings.locale = locale
+    if ReloadUI then ReloadUI() end
+    return true
+end
+
 local frame
 local contentFrame
 local deleteFrame
@@ -1647,9 +2121,9 @@ end
 local function SetBrowserPageRange(firstId, lastId)
     if not browserPageText then return end
     if firstId and lastId then
-        browserPageText:SetText("IDs " .. tostring(firstId) .. " – " .. tostring(lastId))
+        browserPageText:SetText(string.format(L.PAGER_IDS_RANGE, tostring(firstId), tostring(lastId)))
     else
-        browserPageText:SetText("Sin datos")
+        browserPageText:SetText(L.PAGER_NO_DATA)
     end
 end
 
@@ -1658,13 +2132,13 @@ local function RenderQuestRows(quests, direction)
         questRows[i]:Hide()
     end
     if not quests or #quests == 0 then
-        SetBrowserStatus("No se recibieron quests.")
+        SetBrowserStatus(L.STATUS_NO_QUESTS)
         SetBrowserPageRange(nil, nil)
-        Print("No se encontraron quests en la lista recibida.")
+        Print(L.STATUS_NO_QUESTS)
         return
     end
     local visibleCount = math.min(#quests, #questRows)
-    SetBrowserStatus("Mostrando " .. tostring(visibleCount) .. " de " .. tostring(#quests) .. " quests. Dirección: " .. tostring(direction or "n/a"))
+    SetBrowserStatus(string.format(L.STATUS_SHOWING, tostring(visibleCount), tostring(#quests), tostring(direction or "n/a")))
     local firstShownId = tonumber(quests[1].id) or 0
     local lastShownId  = tonumber(quests[visibleCount].id) or firstShownId
     QuestCreator_StreamList.firstShownId = firstShownId
@@ -1683,11 +2157,10 @@ local function RenderQuestRows(quests, direction)
             -- Formato con prefijos como en la imagen
             row.idText:SetText(tostring(questId))
             row.titleText:SetText(title)
-            row.lvlText:SetText("Lvl " .. tostring(level))
-            row.minText:SetText("Min " .. tostring(minLevel))
-            -- Max no viene del stream, mostramos vacío o un guión
+            row.lvlText:SetText(L.ROW_LVL_PREFIX .. " " .. tostring(level))
+            row.minText:SetText(L.ROW_MIN_PREFIX .. " " .. tostring(minLevel))
             row.maxText:SetText("-")
-            row.nextText:SetText("Next " .. tostring(rewardNextQuest))
+            row.nextText:SetText(L.ROW_NEXT_PREFIX .. " " .. tostring(rewardNextQuest))
             
             row.questId = questId
             row.loadButton:SetScript("OnClick", function()
@@ -1732,7 +2205,7 @@ local function CreateBrowserPage(parent)
 
     local headerText = p:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
     headerText:SetPoint("TOPLEFT", p, "TOPLEFT", 50, -24)
-    headerText:SetText("QUEST LIST")
+    headerText:SetText(L.QUEST_LIST_TITLE)
     headerText:SetTextColor(GOLD_R, GOLD_G, GOLD_B)
 
     local headerDiv = p:CreateTexture(nil, "ARTWORK")
@@ -1756,42 +2229,42 @@ local function CreateBrowserPage(parent)
     filterBar:SetBackdropColor(0.04, 0.03, 0.02, 0.95)
     filterBar:SetBackdropBorderColor(BORDER_GOLD_R, BORDER_GOLD_G, BORDER_GOLD_B, 0.65)
 
-    CreateLabel(filterBar, "Start ID", 14, -16, 60)
+    CreateLabel(filterBar, L.LBL_START_ID, 14, -16, 60)
     local startBox = CreateEditBox(filterBar, "browserStartId", 70, -16, 110, 22, true)
     startBox:SetText("1")
 
-    local backward = CreateDarkButton(filterBar, "<< Back", 196, -16, 82, 22, false)
+    local backward = CreateDarkButton(filterBar, L.BTN_BACK, 196, -16, 82, 22, false)
     backward:SetScript("OnClick", function()
         currentListId = tonumber(startBox:GetText()) or 1
-        SetBrowserStatus("Solicitando stream hacia atrás desde ID " .. tostring(currentListId) .. "...")
+        SetBrowserStatus(string.format(L.STATUS_REQ_PREV, tostring(currentListId)))
         AIO.Handle("QuestCreator", "ListQuestsBackward", currentListId)
     end)
 
-    local forward = CreateDarkButton(filterBar, "Forward >>", 286, -16, 90, 22, false)
+    local forward = CreateDarkButton(filterBar, L.BTN_FORWARD, 286, -16, 90, 22, false)
     forward:SetScript("OnClick", function()
         currentListId = tonumber(startBox:GetText()) or 1
-        SetBrowserStatus("Solicitando stream hacia adelante desde ID " .. tostring(currentListId) .. "...")
+        SetBrowserStatus(string.format(L.STATUS_REQ_NEXT, tostring(currentListId)))
         AIO.Handle("QuestCreator", "ListQuestsForward", currentListId)
     end)
 
-    CreateLabel(filterBar, "Search", 400, -16, 50)
+    CreateLabel(filterBar, L.BTN_SEARCH, 400, -16, 50)
     CreateEditBox(filterBar, "browserSearch", 452, -16, 220, 22, false)
 
-    local searchButton = CreateDarkButton(filterBar, "Search", 684, -16, 78, 22, true)
+    local searchButton = CreateDarkButton(filterBar, L.BTN_SEARCH, 684, -16, 78, 22, true)
     searchButton:SetScript("OnClick", function()
-        SetBrowserStatus("Buscando: " .. GetText("browserSearch"))
+        SetBrowserStatus(L.BTN_SEARCH .. ": " .. GetText("browserSearch"))
         AIO.Handle("QuestCreator", "SearchQuests", GetText("browserSearch"))
     end)
 
-    local reloadButton = CreateDarkButton(filterBar, "Reload List", 770, -16, 90, 22, true)
+    local reloadButton = CreateDarkButton(filterBar, L.BTN_RELOAD_LIST, 770, -16, 90, 22, true)
     reloadButton:SetScript("OnClick", function()
         currentListId = 1
         SetBox("browserStartId", currentListId)
-        SetBrowserStatus("Solicitando stream desde ID 1...")
+        SetBrowserStatus(L.STATUS_REQ_FIRST)
         AIO.Handle("QuestCreator", "ListQuestsForward", currentListId)
     end)
 
-    CreateLabel(filterBar, "New Copy ID", 880, -16, 70)
+    CreateLabel(filterBar, L.LBL_NEW_COPY_ID, 880, -16, 70)
     local copyId = CreateEditBox(filterBar, "browserCopyId", 950, -16, 90, 22, true)
     copyId:SetText("0")
 
@@ -1801,7 +2274,7 @@ local function CreateBrowserPage(parent)
     browserStatus:SetWidth(900)
     browserStatus:SetJustifyH("LEFT")
     browserStatus:SetTextColor(MUTED_R, MUTED_G, MUTED_B)
-    browserStatus:SetText("Pulsa Reload List para cargar.")
+    browserStatus:SetText(L.BTN_RELOAD_LIST .. "...")
 
     -- Table frame
     local tableFrame = CreateFrame("Frame", nil, p)
@@ -1848,12 +2321,12 @@ local function CreateBrowserPage(parent)
         return h
     end
 
-    addHeader("ID",          COL_X_ID,    60,  "LEFT")
-    addHeader("QUEST TITLE", COL_X_TITLE, 310, "LEFT")
-    addHeader("LVL",         COL_X_LVL,   60,  "CENTER")
-    addHeader("MIN",         COL_X_MIN,   60,  "CENTER")
-    addHeader("MAX",         COL_X_MAX,   60,  "CENTER")
-    addHeader("NEXT QUEST",  COL_X_NEXT,  90,  "LEFT")
+    addHeader(L.COL_ID,          COL_X_ID,    60,  "LEFT")
+    addHeader(L.COL_QUEST_TITLE, COL_X_TITLE, 310, "LEFT")
+    addHeader(L.COL_LVL,         COL_X_LVL,   60,  "CENTER")
+    addHeader(L.COL_MIN,         COL_X_MIN,   60,  "CENTER")
+    addHeader(L.COL_MAX,         COL_X_MAX,   60,  "CENTER")
+    addHeader(L.COL_NEXT_QUEST,  COL_X_NEXT,  90,  "LEFT")
 
     local tableDiv = tableFrame:CreateTexture(nil, "ARTWORK")
     tableDiv:SetTexture("Interface\\Common\\UI-TooltipDivider-Transparent")
@@ -1932,16 +2405,16 @@ local function CreateBrowserPage(parent)
         row.nextText:SetTextColor(MUTED_R, MUTED_G, MUTED_B)
 
         -- Action buttons (icon + text, dark with gold border)
-        row.loadButton = CreateIconActionButton(row, "Load", "Interface\\BUTTONS\\UI-RefreshButton", ACTION_BTN_W)
+        row.loadButton = CreateIconActionButton(row, L.BTN_LOAD, "Interface\\BUTTONS\\UI-RefreshButton", ACTION_BTN_W)
         row.loadButton:SetPoint("LEFT", row, "LEFT", ACTION_X_LOAD - 4, 0)
 
-        row.copyButton = CreateIconActionButton(row, "Copy", "Interface\\PaperDollInfoFrame\\UI-EquipmentManager-Toggle", ACTION_BTN_W)
+        row.copyButton = CreateIconActionButton(row, L.BTN_COPY, "Interface\\PaperDollInfoFrame\\UI-EquipmentManager-Toggle", ACTION_BTN_W)
         row.copyButton:SetPoint("LEFT", row, "LEFT", ACTION_X_COPY - 4, 0)
 
-        row.deleteButton = CreateIconActionButton(row, "Delete", "Interface\\BUTTONS\\UI-MinusButton-Up", ACTION_BTN_W)
+        row.deleteButton = CreateIconActionButton(row, L.BTN_DELETE, "Interface\\BUTTONS\\UI-MinusButton-Up", ACTION_BTN_W)
         row.deleteButton:SetPoint("LEFT", row, "LEFT", ACTION_X_DEL - 4, 0)
 
-        row.chainDeleteButton = CreateIconActionButton(row, "Del Chain", "Interface\\PetPaperDollFrame\\UI-PetSlot-Link", ACTION_BTN_W)
+        row.chainDeleteButton = CreateIconActionButton(row, L.BTN_DEL_CHAIN, "Interface\\PetPaperDollFrame\\UI-PetSlot-Link", ACTION_BTN_W)
         row.chainDeleteButton:SetPoint("LEFT", row, "LEFT", ACTION_X_CHAIN - 4, 0)
 
         row:Hide()
@@ -1959,7 +2432,7 @@ local function CreateBrowserPage(parent)
     btnFirst:SetScript("OnClick", function()
         currentListId = 1
         SetBox("browserStartId", currentListId)
-        SetBrowserStatus("Solicitando primera página desde ID 1...")
+        SetBrowserStatus(L.STATUS_REQ_FIRST)
         AIO.Handle("QuestCreator", "ListQuestsForward", currentListId)
     end)
 
@@ -1971,7 +2444,7 @@ local function CreateBrowserPage(parent)
         if target < 1 then target = 1 end
         currentListId = target
         SetBox("browserStartId", currentListId)
-        SetBrowserStatus("Solicitando página anterior hasta ID " .. tostring(currentListId) .. "...")
+        SetBrowserStatus(string.format(L.STATUS_REQ_PREV, tostring(currentListId)))
         AIO.Handle("QuestCreator", "ListQuestsBackward", currentListId)
     end)
 
@@ -1979,7 +2452,7 @@ local function CreateBrowserPage(parent)
     browserPageText:SetPoint("CENTER", pagination, "CENTER", 0, 0)
     browserPageText:SetWidth(160)
     browserPageText:SetJustifyH("CENTER")
-    browserPageText:SetText("Sin datos")
+    browserPageText:SetText(L.PAGER_NO_DATA)
     browserPageText:SetTextColor(GOLD_R, GOLD_G, GOLD_B)
 
     local btnNext = CreatePagerButton(pagination, ">", 26)
@@ -1992,7 +2465,7 @@ local function CreateBrowserPage(parent)
         currentListId = lastShown + 1
         if currentListId < 1 then currentListId = 1 end
         SetBox("browserStartId", currentListId)
-        SetBrowserStatus("Solicitando página siguiente desde ID " .. tostring(currentListId) .. "...")
+        SetBrowserStatus(string.format(L.STATUS_REQ_NEXT, tostring(currentListId)))
         AIO.Handle("QuestCreator", "ListQuestsForward", currentListId)
     end)
 
@@ -2001,7 +2474,7 @@ local function CreateBrowserPage(parent)
     btnLast:SetScript("OnClick", function()
         currentListId = 999999
         SetBox("browserStartId", currentListId)
-        SetBrowserStatus("Solicitando última página (backward desde ID 999999)...")
+        SetBrowserStatus(L.STATUS_REQ_LAST)
         AIO.Handle("QuestCreator", "ListQuestsBackward", currentListId)
     end)
 end
@@ -2119,41 +2592,41 @@ end
 local function CreatePreviewPage(parent)
     local p = CreatePage(parent, "preview")
     preview.page = p
-    local left = CreateCard(p, nil, 18, -18, 260, 480, "Quest Summary")
+    local left = CreateCard(p, nil, 18, -18, 260, 480, L.CARD_QUEST_SUMMARY)
     local center = CreateCard(p, nil, 290, -18, 500, 480, "")
-    local right = CreateCard(p, nil, 802, -18, 260, 480, "Preview Controls")
+    local right = CreateCard(p, nil, 802, -18, 260, 480, L.CARD_PREVIEW_CONTROLS)
     preview.widgets.left = left
     preview.widgets.center = center
     preview.widgets.right = right
-    CreateLabel(left, "Quest ID", 14, -55, 80)
+    CreateLabel(left, L.LBL_QUEST_ID, 14, -55, 80)
     local _, fsId = MakeReadOnlyPreviewBox(left, 100, -58, 140, 24)
     preview.widgets.summaryId = fsId
-    CreateLabel(left, "Title", 14, -95, 80)
+    CreateLabel(left, L.LBL_TITLE, 14, -95, 80)
     local _, fsTitle = MakeReadOnlyPreviewBox(left, 100, -98, 140, 24)
     preview.widgets.summaryTitle = fsTitle
-    CreateLabel(left, "QuestType", 14, -135, 80)
+    CreateLabel(left, L.LBL_QUEST_TYPE, 14, -135, 80)
     local _, fsQType = MakeReadOnlyPreviewBox(left, 100, -138, 140, 24)
     preview.widgets.summaryQuestType = fsQType
-    CreateLabel(left, "QuestLevel", 14, -175, 80)
+    CreateLabel(left, L.LBL_QUEST_LEVEL, 14, -175, 80)
     local _, fsQLvl = MakeReadOnlyPreviewBox(left, 100, -178, 140, 24)
     preview.widgets.summaryQuestLevel = fsQLvl
-    CreateLabel(left, "MinLevel", 14, -215, 80)
+    CreateLabel(left, L.LBL_MIN_LEVEL, 14, -215, 80)
     local _, fsMin = MakeReadOnlyPreviewBox(left, 100, -218, 140, 24)
     preview.widgets.summaryMinLevel = fsMin
-    CreateLabel(left, "QuestInfo", 14, -255, 80)
+    CreateLabel(left, L.LBL_QUEST_INFO, 14, -255, 80)
     local _, fsInfo = MakeReadOnlyPreviewBox(left, 100, -258, 140, 60)
     preview.widgets.summaryInfo = fsInfo
-    CreateLabel(left, "Flags", 14, -330, 80)
+    CreateLabel(left, L.LBL_FLAGS, 14, -330, 80)
     local _, fsFlags = MakeReadOnlyPreviewBox(left, 100, -333, 140, 24)
     preview.widgets.summaryFlags = fsFlags
-    CreateLabel(left, "SpecialFlags", 14, -368, 80)
+    CreateLabel(left, L.LBL_SPECIAL_FLAGS, 14, -368, 80)
     local _, fsSFlags = MakeReadOnlyPreviewBox(left, 100, -371, 140, 24)
     preview.widgets.summarySpecialFlags = fsSFlags
     CreateDivider(left, 14, -403, 220)
-    CreateTitle(left, "Starter / Ender", 14, -422, 220)
-    CreateLabel(left, "Start NPC", 14, -444, 80)
+    CreateTitle(left, L.TITLE_STARTER_ENDER, 14, -422, 220)
+    CreateLabel(left, L.LBL_START_NPC, 14, -444, 80)
     preview.widgets.startNpcLabel = CreateMutedLabel(left, "", 100, -444, 140)
-    CreateLabel(left, "End NPC", 14, -462, 80)
+    CreateLabel(left, L.LBL_END_NPC, 14, -462, 80)
     preview.widgets.endNpcLabel = CreateMutedLabel(left, "", 100, -462, 140)
     local qf = CreatePanel(center, nil, 10, -10, 480, 420)
     qf:SetBackdropColor(0.015, 0.012, 0.01, 0.94)
@@ -2353,16 +2826,16 @@ local function CreatePreviewPage(parent)
     for i = 1, 6 do
         preview.reqCells[i] = MakeItemCell(scrollChild, false)
     end
-    local acceptButton = CreateButton(qf, "Aceptar", 28, -375, 100, 24)
-    local rejectButton = CreateButton(qf, "Rechazar", 352, -375, 100, 24)
+    local acceptButton = CreateButton(qf, L.BTN_ACCEPT, 28, -375, 100, 24)
+    local rejectButton = CreateButton(qf, L.BTN_REJECT, 352, -375, 100, 24)
     acceptButton:Hide()
     rejectButton:Hide()
     preview.widgets.acceptButton = acceptButton
     preview.widgets.rejectButton = rejectButton
-    local stateOffer = CreateDarkButton(right, "Offer", 14, -55, 72, 24, true)
-    local stateProgress = CreateDarkButton(right, "In Progress", 92, -55, 88, 24, true)
-    local stateReady = CreateDarkButton(right, "Ready", 186, -55, 72, 24, true)
-    local stateReward = CreateDarkButton(right, "Reward Preview", 14, -85, 120, 24, true)
+    local stateOffer = CreateDarkButton(right, L.BTN_OFFER, 14, -55, 72, 24, true)
+    local stateProgress = CreateDarkButton(right, L.BTN_IN_PROGRESS, 92, -55, 88, 24, true)
+    local stateReady = CreateDarkButton(right, L.BTN_READY, 186, -55, 72, 24, true)
+    local stateReward = CreateDarkButton(right, L.BTN_REWARD_PREVIEW, 14, -85, 120, 24, true)
     preview.widgets.stateButtons = {
         offer = stateOffer,
         progress = stateProgress,
@@ -2385,10 +2858,10 @@ local function CreatePreviewPage(parent)
         preview.state = "reward"
         QuestCreator.UpdatePreview()
     end)
-    local showObjectives = CreateCheck(right, "Show Objectives", 14, -125, true)
-    local showRewards = CreateCheck(right, "Show Rewards", 14, -153, true)
-    local showPortrait = CreateCheck(right, "Show Portrait", 14, -181, true)
-    local useTokens = CreateCheck(right, "Use Player Tokens ($N, $C)", 14, -209, true)
+    local showObjectives = CreateCheck(right, L.CHK_SHOW_OBJECTIVES, 14, -125, true)
+    local showRewards = CreateCheck(right, L.CHK_SHOW_REWARDS, 14, -153, true)
+    local showPortrait = CreateCheck(right, L.CHK_SHOW_PORTRAIT, 14, -181, true)
+    local useTokens = CreateCheck(right, L.CHK_USE_PLAYER_TOKENS, 14, -209, true)
     preview.widgets.showObjectives = showObjectives
     preview.widgets.showRewards = showRewards
     preview.widgets.showPortrait = showPortrait
@@ -2398,11 +2871,11 @@ local function CreatePreviewPage(parent)
     showPortrait:SetScript("OnClick", function() QuestCreator.UpdatePreview() end)
     useTokens:SetScript("OnClick", function() QuestCreator.UpdatePreview() end)
     CreateDivider(right, 14, -245, 220)
-    CreateTitle(right, "Quick Reward Summary", 14, -270, 220)
+    CreateTitle(right, L.TITLE_QUICK_REWARD, 14, -270, 220)
     preview.widgets.rewardXP = CreateLabel(right, "", 14, -302, 220)
     preview.widgets.rewardMoney = CreateLabel(right, "", 14, -326, 220)
-    CreateMutedLabel(right, "Las recompensas completas se muestran", 14, -365, 220)
-    CreateMutedLabel(right, "dentro del pergamino central con scroll.", 14, -385, 220)
+    CreateMutedLabel(right, L.LBL_REWARDS_HINT_1, 14, -365, 220)
+    CreateMutedLabel(right, L.LBL_REWARDS_HINT_2, 14, -385, 220)
     CreateDivider(right, 14, -418, 220)
     preview.widgets.repText = CreateLabel(right, "", 14, -438, 220)
     preview.widgets.honorText = CreateLabel(right, "", 14, -458, 220)
@@ -2755,27 +3228,27 @@ function QuestCreator.UpdatePreview()
     local money = GetNumber("rewardMoney", 0)
     local g, s, c = MoneyToText(money)
     local xpPreview = math.max(GetNumber("rewardXpDifficulty", 0) * 690, 0)
-    SafeSetText(preview.widgets.rewardXP, "XP: " .. tostring(xpPreview))
-    SafeSetText(preview.widgets.rewardMoney, "Dinero: " .. tostring(g) .. "g " .. tostring(s) .. "s " .. tostring(c) .. "c")
+    SafeSetText(preview.widgets.rewardXP, (L.LBL_XP or "XP") .. ": " .. tostring(xpPreview))
+    SafeSetText(preview.widgets.rewardMoney, (L.LBL_MONEY or "Money") .. ": " .. tostring(g) .. "g " .. tostring(s) .. "s " .. tostring(c) .. "c")
     local repValue = GetNumber("rewardFactionValue1", 0)
     if repValue == 0 then
         repValue = GetNumber("rewardFactionValue2", 0)
     end
     local honor = GetNumber("rewardHonor", 0)
-    SafeSetText(preview.widgets.repText, "Reputación: +" .. tostring(repValue))
-    SafeSetText(preview.widgets.honorText, "Honor: +" .. tostring(honor))
+    SafeSetText(preview.widgets.repText, L.LBL_REPUTATION .. ": +" .. tostring(repValue))
+    SafeSetText(preview.widgets.honorText, L.LBL_HONOR .. ": +" .. tostring(honor))
     if preview.state == "offer" then
-        preview.widgets.acceptButton:SetText("Aceptar")
-        preview.widgets.rejectButton:SetText("Rechazar")
+        preview.widgets.acceptButton:SetText(L.BTN_ACCEPT)
+        preview.widgets.rejectButton:SetText(L.BTN_REJECT)
     elseif preview.state == "progress" then
-        preview.widgets.acceptButton:SetText("Continuar")
-        preview.widgets.rejectButton:SetText("Cerrar")
+        preview.widgets.acceptButton:SetText(L.BTN_CONTINUE)
+        preview.widgets.rejectButton:SetText(L.BTN_CLOSE)
     elseif preview.state == "ready" then
-        preview.widgets.acceptButton:SetText("Completar")
-        preview.widgets.rejectButton:SetText("Cancelar")
+        preview.widgets.acceptButton:SetText(L.BTN_COMPLETE)
+        preview.widgets.rejectButton:SetText(L.BTN_CANCEL)
     else
-        preview.widgets.acceptButton:SetText("Aceptar")
-        preview.widgets.rejectButton:SetText("Cerrar")
+        preview.widgets.acceptButton:SetText(L.BTN_ACCEPT)
+        preview.widgets.rejectButton:SetText(L.BTN_CLOSE)
     end
     for key, button in pairs(preview.widgets.stateButtons) do
         if button then
@@ -2968,34 +3441,55 @@ local function CreateMainFrame()
     horde:SetTexture("Interface\\PVPFrame\\PVP-Currency-Horde")
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
     title:SetPoint("TOP", frame, "TOP", 0, -22)
-    title:SetText("AzerothCore Quest Builder Visual V4")
+    title:SetText(L.APP_TITLE)
     title:SetTextColor(GOLD_R, GOLD_G, GOLD_B)
     local close = CreateFrame("Button", nil, frame, "UIPanelCloseButton")
     close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -8)
     close:SetScript("OnClick", function() frame:Hide() end)
-    local validateButton = CreateButton(frame, "Validate", 840, -22, 100, 26)
+    local langDropdown = CreateFrame("Frame", "QuestCreatorLangDropdown", frame, "UIDropDownMenuTemplate")
+    langDropdown:SetPoint("TOPLEFT", frame, "TOPLEFT", 50, -16)
+    if UIDropDownMenu_SetWidth then UIDropDownMenu_SetWidth(langDropdown, 110) end
+    if UIDropDownMenu_Initialize then
+        UIDropDownMenu_Initialize(langDropdown, function(self, level)
+            for _, code in ipairs(LOCALE_ORDER) do
+                local info = UIDropDownMenu_CreateInfo()
+                info.text = LOCALE_DISPLAY[code]
+                info.value = code
+                info.func = function(b) SetClientLocale(b.value) end
+                info.checked = (code == GetSelectedLocale())
+                UIDropDownMenu_AddButton(info, level)
+            end
+        end)
+    end
+    if UIDropDownMenu_SetSelectedValue then UIDropDownMenu_SetSelectedValue(langDropdown, GetSelectedLocale()) end
+    if UIDropDownMenu_SetText then UIDropDownMenu_SetText(langDropdown, LOCALE_DISPLAY[GetSelectedLocale()] or "English") end
+    local langLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    langLabel:SetPoint("BOTTOM", langDropdown, "TOP", 12, -2)
+    langLabel:SetText(L.LBL_LANGUAGE)
+    langLabel:SetTextColor(SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B)
+    local validateButton = CreateButton(frame, L.BTN_VALIDATE, 840, -22, 100, 26)
     validateButton:SetScript("OnClick", function()
         AIO.Handle("QuestCreator", "Validate", BuildPayloadFromUI())
     end)
-    local saveButton = CreateButton(frame, "Save", 948, -22, 80, 26)
+    local saveButton = CreateButton(frame, L.BTN_SAVE, 948, -22, 80, 26)
     saveButton:SetScript("OnClick", function()
         AIO.Handle("QuestCreator", "Save", BuildPayloadFromUI())
     end)
-    local clearButton = CreateButton(frame, "Clear", 1036, -22, 80, 26)
+    local clearButton = CreateButton(frame, L.BTN_CLEAR, 1036, -22, 80, 26)
     clearButton:SetScript("OnClick", function()
         ClearEditor()
     end)
     local nav = {
-        { "Basic",      "basic"      },
-        { "Texts",      "texts"      },
-        { "Objectives", "objectives" },
-        { "Rewards",    "rewards"    },
-        { "Reputation", "reputation" },
-        { "Chain",      "chain"      },
-        { "Starter",    "starter"    },
-        { "Advanced",   "advanced"   },
-        { "Quest List", "browser"    },
-        { "Preview",    "preview"    }
+        { L.TAB_BASIC,      "basic"      },
+        { L.TAB_TEXTS,      "texts"      },
+        { L.TAB_OBJECTIVES, "objectives" },
+        { L.TAB_REWARDS,    "rewards"    },
+        { L.TAB_REPUTATION, "reputation" },
+        { L.TAB_CHAIN,      "chain"      },
+        { L.TAB_STARTER,    "starter"    },
+        { L.TAB_ADVANCED,   "advanced"   },
+        { L.TAB_QUEST_LIST, "browser"    },
+        { L.TAB_PREVIEW,    "preview"    }
     }
     local prevTab = nil
     for i, item in ipairs(nav) do
