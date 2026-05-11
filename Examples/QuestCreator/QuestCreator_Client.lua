@@ -3627,7 +3627,7 @@ local function CreateMainFrame()
     close:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -8)
     close:SetScript("OnClick", function() frame:Hide() end)
     local langDropdown = CreateFrame("Frame", "QuestCreatorLangDropdown", frame, "UIDropDownMenuTemplate")
-    langDropdown:SetPoint("TOPLEFT", frame, "TOPLEFT", 50, -16)
+    langDropdown:SetPoint("TOPLEFT", frame, "TOPLEFT", 930, -68)
     if UIDropDownMenu_SetWidth then UIDropDownMenu_SetWidth(langDropdown, 110) end
     if UIDropDownMenu_Initialize then
         UIDropDownMenu_Initialize(langDropdown, function(self, level)
