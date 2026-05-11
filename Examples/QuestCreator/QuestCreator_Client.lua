@@ -110,6 +110,30 @@ local LOCALES = {
         MSG_DELETE_CHAIN_TITLE = "Delete Chain",
         MSG_DELETE_CHAIN_BODY  = "You are about to delete a chain starting at quest %s\n\nRewardNextQuest will be followed forward." ..
                                  "\n\nTo confirm type:\nDELETE CHAIN %s",
+        HELP_TITLE             = "AzerothCore Quest Builder — Help",
+        HELP_BODY              =
+"This addon is a full quest editor for AzerothCore custom quests, built on top of AIO.\n\n" ..
+"|cffffd87aHeader buttons|r\n" ..
+"  ?     Open this help.\n" ..
+"  Validate  Ask the server to validate the form without saving.\n" ..
+"  Save     Persist the quest to the database.\n" ..
+"  Clear    Reset every field of the editor.\n\n" ..
+"|cffffd87aLanguage|r\n" ..
+"  Dropdown in the top-left. Supported: English, Español, Português (BR), Français. Choice is persisted between sessions; other clients fall back to English.\n\n" ..
+"|cffffd87aTabs|r\n" ..
+"  Basic       ID, title, type, level, min level, flags and special flags.\n" ..
+"  Texts       Log description, quest description, area description and completion log.\n" ..
+"  Objectives  Up to 4 objectives (creature/object/item/spell/area) and emote IDs.\n" ..
+"  Rewards     Items, choice items, money, XP difficulty, honor, kill honor, title, talent and arena points.\n" ..
+"  Reputation  Two faction rewards (faction id + value, both raw and override fields).\n" ..
+"  Chain       Previous quest, next quest, exclusive group and breadcrumb.\n" ..
+"  Starter     Start and end NPCs / GameObjects, source item.\n" ..
+"  Advanced    Required races / classes, suggested players, time limit, area, point of interest.\n" ..
+"  Quest List  Paginated browser over your custom quest range: search by text, jump by ID, Load, Copy, Delete and Delete Chain.\n" ..
+"  Preview     Live preview of the quest in the WoW style with Offer / In Progress / Ready / Reward Preview states, toggles for objectives, rewards, portrait and player tokens, and a quick reward summary.\n\n" ..
+"|cffffd87aSafety|r\n" ..
+"  Deletes are restricted to the custom quest range (CustomQuestMinId..CustomQuestMaxId). Delete Chain also refuses if the chain crosses into the official quest range, unless AllowDeleteOutsideCustomRange is enabled on the server.\n\n" ..
+"All actions go through the AIO RPC layer: client never writes to the database directly.",
     },
     es = {
         APP_TITLE             = "AzerothCore Quest Builder Visual V4",
@@ -194,6 +218,30 @@ local LOCALES = {
         MSG_DELETE_CHAIN_TITLE = "Borrar cadena",
         MSG_DELETE_CHAIN_BODY  = "Vas a borrar una cadena desde quest %s\n\nSe seguirá RewardNextQuest hacia adelante." ..
                                  "\n\nPara confirmar escribe:\nDELETE CHAIN %s",
+        HELP_TITLE             = "AzerothCore Quest Builder — Ayuda",
+        HELP_BODY              =
+"Este addon es un editor completo de quests custom de AzerothCore, montado sobre AIO.\n\n" ..
+"|cffffd87aBotones de cabecera|r\n" ..
+"  ?         Abre esta ayuda.\n" ..
+"  Validar   Pide al servidor validar el formulario sin guardar.\n" ..
+"  Guardar   Persiste la quest en la base de datos.\n" ..
+"  Limpiar   Reinicia todos los campos del editor.\n\n" ..
+"|cffffd87aIdioma|r\n" ..
+"  Dropdown arriba a la izquierda. Idiomas: English, Español, Português (BR), Français. La elección se guarda entre sesiones; otros clientes caen a inglés.\n\n" ..
+"|cffffd87aPestañas|r\n" ..
+"  Básico         ID, título, tipo, nivel, nivel mínimo, flags y flags especiales.\n" ..
+"  Textos         Descripción del log, descripción de la quest, descripción del área y completion log.\n" ..
+"  Objetivos      Hasta 4 objetivos (criatura/objeto/item/hechizo/área) e IDs de emote.\n" ..
+"  Recompensas    Items, items de elección, dinero, dificultad XP, honor, kill honor, título, puntos de talento y arena.\n" ..
+"  Reputación     Dos recompensas de facción (faction id + valor, en versión raw y override).\n" ..
+"  Cadena         Quest previa, quest siguiente, exclusive group y breadcrumb.\n" ..
+"  Inicio         NPC/GameObject inicial y final, item fuente.\n" ..
+"  Avanzado       Razas / clases requeridas, jugadores sugeridos, límite de tiempo, área, punto de interés.\n" ..
+"  Lista de quests  Navegador paginado sobre tu rango custom: buscar por texto, saltar por ID, Cargar, Copiar, Borrar y Borrar cadena.\n" ..
+"  Vista previa     Preview en vivo al estilo WoW con estados Ofrecer / En curso / Lista / Vista de recompensa, toggles de objetivos/recompensas/retrato/tokens del jugador, y un resumen rápido de recompensas.\n\n" ..
+"|cffffd87aSeguridad|r\n" ..
+"  Los borrados están restringidos al rango custom (CustomQuestMinId..CustomQuestMaxId). Borrar cadena también rechaza la operación si la cadena entra en el rango oficial, salvo que AllowDeleteOutsideCustomRange esté habilitado en el server.\n\n" ..
+"Todas las acciones pasan por la capa RPC de AIO: el cliente nunca escribe en la base de datos directamente.",
     },
     ptBR = {
         APP_TITLE             = "AzerothCore Quest Builder Visual V4",
@@ -278,6 +326,30 @@ local LOCALES = {
         MSG_DELETE_CHAIN_TITLE = "Excluir cadeia",
         MSG_DELETE_CHAIN_BODY  = "Você vai excluir uma cadeia a partir da quest %s\n\nRewardNextQuest será seguido adiante." ..
                                  "\n\nPara confirmar digite:\nDELETE CHAIN %s",
+        HELP_TITLE             = "AzerothCore Quest Builder — Ajuda",
+        HELP_BODY              =
+"Este addon é um editor completo de quests customizadas do AzerothCore, em cima do AIO.\n\n" ..
+"|cffffd87aBotões do cabeçalho|r\n" ..
+"  ?         Abre esta ajuda.\n" ..
+"  Validar   Pede ao servidor validar o formulário sem salvar.\n" ..
+"  Salvar    Persiste a quest no banco.\n" ..
+"  Limpar    Zera todos os campos do editor.\n\n" ..
+"|cffffd87aIdioma|r\n" ..
+"  Dropdown no canto superior esquerdo. Idiomas: English, Español, Português (BR), Français. A escolha é salva entre sessões; outros clientes caem para inglês.\n\n" ..
+"|cffffd87aAbas|r\n" ..
+"  Básico         ID, título, tipo, nível, nível mínimo, flags e flags especiais.\n" ..
+"  Textos         Descrição do log, descrição da quest, descrição da área e completion log.\n" ..
+"  Objetivos      Até 4 objetivos (criatura/objeto/item/feitiço/área) e IDs de emote.\n" ..
+"  Recompensas    Itens, itens de escolha, dinheiro, dificuldade de XP, honra, kill honor, título, pontos de talento e arena.\n" ..
+"  Reputação      Duas recompensas de facção (faction id + valor, em versão raw e override).\n" ..
+"  Cadeia         Quest anterior, próxima, exclusive group e breadcrumb.\n" ..
+"  Início         NPC/GameObject inicial e final, item fonte.\n" ..
+"  Avançado       Raças / classes exigidas, jogadores sugeridos, limite de tempo, área, ponto de interesse.\n" ..
+"  Lista de quests  Navegador paginado sobre seu range custom: busca por texto, salto por ID, Carregar, Copiar, Excluir e Excluir cadeia.\n" ..
+"  Pré-visualização   Preview ao vivo no estilo WoW com estados Oferecer / Em andamento / Pronta / Prévia da recompensa, toggles de objetivos/recompensas/retrato/tokens do jogador, e um resumo rápido das recompensas.\n\n" ..
+"|cffffd87aSegurança|r\n" ..
+"  Exclusões são restritas ao range custom (CustomQuestMinId..CustomQuestMaxId). Excluir cadeia também rejeita se a cadeia entrar no range oficial, a menos que AllowDeleteOutsideCustomRange esteja habilitado no servidor.\n\n" ..
+"Todas as ações passam pela camada RPC do AIO: o cliente nunca escreve direto no banco.",
     },
     fr = {
         APP_TITLE             = "AzerothCore Quest Builder Visual V4",
@@ -362,6 +434,30 @@ local LOCALES = {
         MSG_DELETE_CHAIN_TITLE = "Supprimer la chaîne",
         MSG_DELETE_CHAIN_BODY  = "Vous allez supprimer une chaîne à partir de la quête %s\n\nRewardNextQuest sera suivi vers l'avant." ..
                                  "\n\nPour confirmer, tapez :\nDELETE CHAIN %s",
+        HELP_TITLE             = "AzerothCore Quest Builder — Aide",
+        HELP_BODY              =
+"Cet addon est un éditeur complet de quêtes personnalisées pour AzerothCore, bâti sur AIO.\n\n" ..
+"|cffffd87aBoutons d'en-tête|r\n" ..
+"  ?           Ouvre cette aide.\n" ..
+"  Valider     Demande au serveur de valider le formulaire sans sauvegarder.\n" ..
+"  Enregistrer Persiste la quête en base de données.\n" ..
+"  Effacer     Réinitialise tous les champs de l'éditeur.\n\n" ..
+"|cffffd87aLangue|r\n" ..
+"  Menu déroulant en haut à gauche. Langues : English, Español, Português (BR), Français. Le choix est conservé entre les sessions ; les autres clients basculent en anglais.\n\n" ..
+"|cffffd87aOnglets|r\n" ..
+"  Base           ID, titre, type, niveau, niveau minimum, flags et flags spéciaux.\n" ..
+"  Textes         Description du journal, description de la quête, description de la zone et completion log.\n" ..
+"  Objectifs      Jusqu'à 4 objectifs (créature/objet/item/sort/zone) et IDs d'emote.\n" ..
+"  Récompenses    Items, items de choix, argent, difficulté d'XP, honneur, kill honor, titre, points de talent et d'arène.\n" ..
+"  Réputation     Deux récompenses de faction (faction id + valeur, en versions brute et override).\n" ..
+"  Chaîne         Quête précédente, suivante, exclusive group et breadcrumb.\n" ..
+"  Début          PNJ / GameObject de début et de fin, item source.\n" ..
+"  Avancé         Races / classes requises, joueurs suggérés, limite de temps, zone, point d'intérêt.\n" ..
+"  Liste de quêtes Navigateur paginé sur votre range custom : recherche par texte, saut par ID, Charger, Copier, Supprimer et Supprimer chaîne.\n" ..
+"  Aperçu          Aperçu live au style WoW avec états Proposer / En cours / Prête / Aperçu récompense, toggles objectifs/récompenses/portrait/jetons du joueur, et un résumé rapide des récompenses.\n\n" ..
+"|cffffd87aSécurité|r\n" ..
+"  Les suppressions sont limitées au range custom (CustomQuestMinId..CustomQuestMaxId). Supprimer chaîne refuse également si la chaîne sort dans le range officiel, sauf si AllowDeleteOutsideCustomRange est activé côté serveur.\n\n" ..
+"Toutes les actions passent par la couche RPC d'AIO : le client n'écrit jamais directement en base.",
     },
 }
 
@@ -817,6 +913,171 @@ local function CreatePagerButton(parent, glyph, width)
         self.label:SetTextColor(SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B)
     end)
     return btn
+end
+
+local function CreateHeaderActionButton(parent, text, iconTexture, x, y, width, height, primary)
+    local btn = CreateFrame("Button", nil, parent)
+    if x and y then
+        btn:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
+    end
+    btn:SetWidth(width or 100)
+    btn:SetHeight(height or 28)
+    StyleDarkButton(btn, primary)
+
+    local icon = btn:CreateTexture(nil, "OVERLAY")
+    icon:SetSize(14, 14)
+    icon:SetPoint("LEFT", btn, "LEFT", 6, 0)
+    if iconTexture then
+        icon:SetTexture(iconTexture)
+    end
+    local iconR, iconG, iconB = SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B
+    if primary then
+        iconR, iconG, iconB = 1, 0.92, 0.6
+    end
+    icon:SetVertexColor(iconR, iconG, iconB, 0.95)
+    btn.icon = icon
+
+    local label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    label:SetPoint("LEFT", btn, "LEFT", 24, 0)
+    label:SetText(text or "")
+    if primary then
+        label:SetTextColor(1, 0.92, 0.6)
+    else
+        label:SetTextColor(SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B)
+    end
+    btn.label = label
+
+    btn:SetScript("OnEnter", function(self)
+        self:SetBackdropBorderColor(GOLD_R, GOLD_G, GOLD_B, 1)
+        if self._isPrimary then
+            self:SetBackdropColor(0.55, 0.12, 0.05, 0.98)
+            self.label:SetTextColor(1, 1, 0.85)
+        else
+            self:SetBackdropColor(0.12, 0.08, 0.05, 0.98)
+            self.label:SetTextColor(1, 0.95, 0.7)
+        end
+        if self.icon then self.icon:SetVertexColor(1, 0.95, 0.7, 1) end
+    end)
+    btn:SetScript("OnLeave", function(self)
+        if self._isPrimary then
+            self:SetBackdropBorderColor(BORDER_GOLD_R, BORDER_GOLD_G, BORDER_GOLD_B, 1)
+            self:SetBackdropColor(0.42, 0.08, 0.04, 0.95)
+            self.label:SetTextColor(1, 0.92, 0.6)
+            if self.icon then self.icon:SetVertexColor(1, 0.92, 0.6, 0.95) end
+        else
+            self:SetBackdropBorderColor(BORDER_GOLD_R, BORDER_GOLD_G, BORDER_GOLD_B, 0.85)
+            self:SetBackdropColor(0.06, 0.04, 0.03, 0.92)
+            self.label:SetTextColor(SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B)
+            if self.icon then self.icon:SetVertexColor(SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B, 0.95) end
+        end
+    end)
+    btn:SetScript("OnMouseDown", function(self)
+        if self.label then self.label:SetPoint("LEFT", self, "LEFT", 25, -1) end
+        if self.icon  then self.icon:SetPoint("LEFT",  self, "LEFT", 7, -1) end
+    end)
+    btn:SetScript("OnMouseUp", function(self)
+        if self.label then self.label:SetPoint("LEFT", self, "LEFT", 24, 0) end
+        if self.icon  then self.icon:SetPoint("LEFT",  self, "LEFT", 6, 0) end
+    end)
+    return btn
+end
+
+local function CreateHelpButton(parent, x, y, size)
+    local btn = CreateFrame("Button", nil, parent)
+    if x and y then
+        btn:SetPoint("TOPLEFT", parent, "TOPLEFT", x, y)
+    end
+    local s = size or 28
+    btn:SetWidth(s)
+    btn:SetHeight(s)
+    StyleDarkButton(btn, false)
+
+    local label = btn:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+    label:SetPoint("CENTER", btn, "CENTER", 0, 0)
+    label:SetText("?")
+    label:SetTextColor(SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B)
+    btn.label = label
+
+    btn:SetScript("OnEnter", function(self)
+        self:SetBackdropBorderColor(GOLD_R, GOLD_G, GOLD_B, 1)
+        self:SetBackdropColor(0.12, 0.08, 0.05, 0.98)
+        self.label:SetTextColor(1, 0.95, 0.7)
+    end)
+    btn:SetScript("OnLeave", function(self)
+        self:SetBackdropBorderColor(BORDER_GOLD_R, BORDER_GOLD_G, BORDER_GOLD_B, 0.85)
+        self:SetBackdropColor(0.06, 0.04, 0.03, 0.92)
+        self.label:SetTextColor(SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B)
+    end)
+    return btn
+end
+
+local function ShowHelpDialog()
+    local f = QuestCreator._helpFrame
+    if not f then
+        f = CreateFrame("Frame", "QuestCreatorHelpFrame", UIParent)
+        f:SetFrameStrata("DIALOG")
+        f:SetWidth(560)
+        f:SetHeight(440)
+        f:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+        f:SetBackdrop({
+            bgFile   = "Interface\\DialogFrame\\UI-DialogBox-Background-Dark",
+            edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Gold-Border",
+            tile     = false,
+            edgeSize = 28,
+            insets   = { left = 9, right = 9, top = 9, bottom = 9 }
+        })
+        f:SetBackdropColor(0.03, 0.02, 0.015, 0.96)
+        f:EnableMouse(true)
+        f:SetMovable(true)
+        f:RegisterForDrag("LeftButton")
+        f:SetScript("OnDragStart", f.StartMoving)
+        f:SetScript("OnDragStop", f.StopMovingOrSizing)
+
+        local title = f:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
+        title:SetPoint("TOP", f, "TOP", 0, -18)
+        title:SetTextColor(GOLD_R, GOLD_G, GOLD_B)
+        f.title = title
+
+        local close = CreateFrame("Button", nil, f, "UIPanelCloseButton")
+        close:SetPoint("TOPRIGHT", f, "TOPRIGHT", -6, -6)
+
+        local scroll = CreateFrame("ScrollFrame", "QuestCreatorHelpScroll", f, "UIPanelScrollFrameTemplate")
+        scroll:SetPoint("TOPLEFT", f, "TOPLEFT", 22, -52)
+        scroll:SetPoint("BOTTOMRIGHT", f, "BOTTOMRIGHT", -34, 56)
+        local content = CreateFrame("Frame", nil, scroll)
+        content:SetWidth(490)
+        content:SetHeight(900)
+        scroll:SetScrollChild(content)
+
+        local body = content:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+        body:SetPoint("TOPLEFT", content, "TOPLEFT", 4, -4)
+        body:SetWidth(480)
+        body:SetJustifyH("LEFT")
+        body:SetJustifyV("TOP")
+        body:SetSpacing(2)
+        body:SetTextColor(0.95, 0.85, 0.55)
+        f.body = body
+        f.bodyContent = content
+
+        local okBtn = CreateHeaderActionButton(f, "OK", "Interface\\Buttons\\UI-CheckBox-Check",
+            (560 - 100) / 2, -((440 - 38)), 100, 28, true)
+        okBtn:ClearAllPoints()
+        okBtn:SetPoint("BOTTOM", f, "BOTTOM", 0, 18)
+        okBtn:SetScript("OnClick", function() f:Hide() end)
+        f.okBtn = okBtn
+
+        QuestCreator._helpFrame = f
+    end
+
+    f.title:SetText(L.HELP_TITLE or "Help")
+    f.body:SetText(L.HELP_BODY or "")
+    if f.okBtn and f.okBtn.label then
+        f.okBtn.label:SetText(L.BTN_CLOSE or "Close")
+    end
+    local h = f.body:GetStringHeight() + 30
+    if h < 360 then h = 360 end
+    f.bodyContent:SetHeight(h)
+    f:Show()
 end
 
 local function CreateTabButton(parent, text, x, y, width, height)
@@ -3381,15 +3642,20 @@ local function CreateMainFrame()
     langLabel:SetPoint("BOTTOM", langDropdown, "TOP", 12, -2)
     langLabel:SetText(L.LBL_LANGUAGE)
     langLabel:SetTextColor(SOFT_GOLD_R, SOFT_GOLD_G, SOFT_GOLD_B)
-    local validateButton = CreateButton(frame, L.BTN_VALIDATE, 840, -22, 100, 26)
+    local helpButton = CreateHelpButton(frame, 800, -22, 28)
+    helpButton:SetScript("OnClick", function() ShowHelpDialog() end)
+    local validateButton = CreateHeaderActionButton(frame, L.BTN_VALIDATE,
+        "Interface\\RAIDFRAME\\ReadyCheck-Ready", 836, -22, 104, 28, false)
     validateButton:SetScript("OnClick", function()
         AIO.Handle("QuestCreator", "Validate", BuildPayloadFromUI())
     end)
-    local saveButton = CreateButton(frame, L.BTN_SAVE, 948, -22, 80, 26)
+    local saveButton = CreateHeaderActionButton(frame, L.BTN_SAVE,
+        "Interface\\GossipFrame\\BinderGossipIcon", 944, -22, 92, 28, false)
     saveButton:SetScript("OnClick", function()
         AIO.Handle("QuestCreator", "Save", BuildPayloadFromUI())
     end)
-    local clearButton = CreateButton(frame, L.BTN_CLEAR, 1036, -22, 80, 26)
+    local clearButton = CreateHeaderActionButton(frame, L.BTN_CLEAR,
+        "Interface\\Buttons\\UI-GroupLoot-Pass-Up", 1040, -22, 88, 28, false)
     clearButton:SetScript("OnClick", function()
         ClearEditor()
     end)
