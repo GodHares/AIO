@@ -1789,8 +1789,8 @@ local function CreateBrowserPage(parent)
 
     -- Table frame
     local tableFrame = CreateFrame("Frame", nil, p)
-    tableFrame:SetPoint("TOPLEFT", p, "TOPLEFT", 18, -134)
-    tableFrame:SetPoint("BOTTOMRIGHT", p, "BOTTOMRIGHT", -18, 46)
+    tableFrame:SetPoint("TOPLEFT", p, "TOPLEFT", 18, -126)
+    tableFrame:SetPoint("BOTTOMRIGHT", p, "BOTTOMRIGHT", -18, 40)
     tableFrame:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -1848,7 +1848,7 @@ local function CreateBrowserPage(parent)
 
     -- Quest rows
     local rowStartY = -42
-    local rowHeight = 22
+    local rowHeight = 20
 
     for i = 1, 16 do
         local row = CreateFrame("Frame", nil, tableFrame)
@@ -1934,9 +1934,9 @@ local function CreateBrowserPage(parent)
 
     -- Pagination (centered group of 4 styled buttons with page text in middle)
     local pagination = CreateFrame("Frame", nil, p)
-    pagination:SetPoint("BOTTOM", p, "BOTTOM", 0, 12)
+    pagination:SetPoint("BOTTOM", p, "BOTTOM", 0, 6)
     pagination:SetWidth(300)
-    pagination:SetHeight(28)
+    pagination:SetHeight(26)
 
     local btnFirst = CreatePagerButton(pagination, "<<", 30)
     btnFirst:SetPoint("LEFT", pagination, "LEFT", 30, 0)
