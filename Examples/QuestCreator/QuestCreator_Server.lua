@@ -1536,6 +1536,23 @@ function QuestCreator.DeleteQuestChain(player, startQuestId, confirmText)
         return
     end
 
+    if not Config.AllowDeleteOutsideCustomRange then
+        local outOfRange = {}
+        for _, questId in ipairs(chain) do
+            if questId < Config.CustomQuestMinId or questId > Config.CustomQuestMaxId then
+                outOfRange[#outOfRange + 1] = tostring(questId)
+            end
+        end
+
+        if #outOfRange > 0 then
+            AIO.Handle(player, "QuestCreator", "ShowValidationErrors", {
+                "La cadena contiene quests fuera del rango custom y AllowDeleteOutsideCustomRange está deshabilitado: "
+                    .. table.concat(outOfRange, ", ") .. "."
+            })
+            return
+        end
+    end
+
     WorldDBExecute("START TRANSACTION")
 
     local ok, err = pcall(function()
