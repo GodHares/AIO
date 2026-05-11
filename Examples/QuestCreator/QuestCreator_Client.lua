@@ -2359,10 +2359,10 @@ local function CreatePreviewPage(parent)
     rejectButton:Hide()
     preview.widgets.acceptButton = acceptButton
     preview.widgets.rejectButton = rejectButton
-    local stateOffer = CreateButton(right, "Offer", 14, -55, 72, 24)
-    local stateProgress = CreateButton(right, "In Progress", 92, -55, 88, 24)
-    local stateReady = CreateButton(right, "Ready", 186, -55, 72, 24)
-    local stateReward = CreateButton(right, "Reward Preview", 14, -85, 120, 24)
+    local stateOffer = CreateDarkButton(right, "Offer", 14, -55, 72, 24, true)
+    local stateProgress = CreateDarkButton(right, "In Progress", 92, -55, 88, 24, true)
+    local stateReady = CreateDarkButton(right, "Ready", 186, -55, 72, 24, true)
+    local stateReward = CreateDarkButton(right, "Reward Preview", 14, -85, 120, 24, true)
     preview.widgets.stateButtons = {
         offer = stateOffer,
         progress = stateProgress,
