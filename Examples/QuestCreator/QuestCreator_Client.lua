@@ -3904,6 +3904,20 @@ local function CreateMainFrame()
     validateIcon:SetTexCoord(0.370117188, 0.416992188, 0.621093750, 0.667945313)
     validateButton.icon = validateIcon
 
+    clearButton:SetScript("OnClick", function()
+        ClearEditor()
+    end)
+
+    saveButton:SetScript("OnClick", function()
+        local payload = BuildPayloadFromUI()
+        AIO.Handle("QuestCreator", "Save", payload)
+    end)
+
+    validateButton:SetScript("OnClick", function()
+        local payload = BuildPayloadFromUI()
+        AIO.Handle("QuestCreator", "Validate", payload)
+    end)
+
     local nav = {
         { L.TAB_BASIC,      "basic"      },
         { L.TAB_TEXTS,      "texts"      },
