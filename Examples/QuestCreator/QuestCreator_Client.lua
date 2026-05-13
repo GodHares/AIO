@@ -1519,7 +1519,7 @@ end
 local function CreatePage(parent, name)
     local page = CreateFrame("Frame", nil, parent)
     page:SetPoint("TOPLEFT", parent, "TOPLEFT", 0, 0)
-    page:SetWidth(1106)
+    page:SetWidth(1150)
     page:SetHeight(540)
     page:Hide()
     pages[name] = page
@@ -1893,14 +1893,16 @@ local function CreateBasicPage(parent)
     local CARD_W = 340
     local CARD_H = 480
     local GAP = 16
+    local TOTAL_W = CARD_W + GAP + (CARD_W + 20) + GAP + (CARD_W + 20)
+    local START_X = math.floor((1150 - TOTAL_W) / 2)
 
     local ICON_BASIC = "Interface\\Icons\\INV_Misc_Book_09"
     local ICON_FLAGS = "Interface\\Icons\\Ability_Parry"
     local ICON_SPECIAL = "Interface\\Icons\\Spell_Holy_SurgeOfLight"
 
-    local left  = CreateCard(p, nil,  18, -18, CARD_W, CARD_H, "Basic", ICON_BASIC)
-    local mid   = CreateCard(p, nil,  18 + CARD_W + GAP, -18, CARD_W + 20, CARD_H, "Flags", ICON_FLAGS)
-    local right = CreateCard(p, nil,  18 + CARD_W + GAP + CARD_W + 20 + GAP, -18, CARD_W + 20, CARD_H, "SpecialFlags", ICON_SPECIAL)
+    local left  = CreateCard(p, nil,  START_X, -18, CARD_W, CARD_H, "Basic", ICON_BASIC)
+    local mid   = CreateCard(p, nil,  START_X + CARD_W + GAP, -18, CARD_W + 20, CARD_H, "Flags", ICON_FLAGS)
+    local right = CreateCard(p, nil,  START_X + CARD_W + GAP + CARD_W + 20 + GAP, -18, CARD_W + 20, CARD_H, "SpecialFlags", ICON_SPECIAL)
 
     local LABEL_W = 100
     local INPUT_X = 110
@@ -1989,8 +1991,13 @@ end
 
 local function CreateTextsPage(parent)
     local p = CreatePage(parent, "texts")
-    local left  = CreateCard(p, nil,  18, -18, 520, 500, "Texts - Main")
-    local right = CreateCard(p, nil,  554, -18, 530, 500, "Texts - Completion / Reward")
+    local TXT_LEFT_W = 520
+    local TXT_RIGHT_W = 530
+    local TXT_GAP = 16
+    local TXT_TOTAL = TXT_LEFT_W + TXT_GAP + TXT_RIGHT_W
+    local TXT_X = math.floor((1150 - TXT_TOTAL) / 2)
+    local left  = CreateCard(p, nil,  TXT_X, -18, TXT_LEFT_W, 500, "Texts - Main")
+    local right = CreateCard(p, nil,  TXT_X + TXT_LEFT_W + TXT_GAP, -18, TXT_RIGHT_W, 500, "Texts - Completion / Reward")
     CreateLabel(left, "Insertar:", 30, -68, 80)
     local function AddTokenButton(text, token, x)
         local btn = CreateButton(left, text, x, -70, 48, 24)
@@ -2046,10 +2053,12 @@ local function CreateObjectivesPage(parent)
     local CARD_W = 340
     local CARD_H = 480
     local GAP = 16
+    local OBJ_TOTAL = CARD_W + GAP + CARD_W + GAP + CARD_W
+    local OBJ_X = math.floor((1150 - OBJ_TOTAL) / 2)
 
-    local left  = CreateCard(p, nil,  18, -18, CARD_W, CARD_H, "Objectives - Kills / NPC / GO")
-    local mid   = CreateCard(p, nil,  18 + CARD_W + GAP, -18, CARD_W, CARD_H, "Required Items / Drops")
-    local right = CreateCard(p, nil,  18 + CARD_W + GAP + CARD_W + GAP, -18, CARD_W, CARD_H, "Objective Texts")
+    local left  = CreateCard(p, nil,  OBJ_X, -18, CARD_W, CARD_H, "Objectives - Kills / NPC / GO")
+    local mid   = CreateCard(p, nil,  OBJ_X + CARD_W + GAP, -18, CARD_W, CARD_H, "Required Items / Drops")
+    local right = CreateCard(p, nil,  OBJ_X + CARD_W + GAP + CARD_W + GAP, -18, CARD_W, CARD_H, "Objective Texts")
 
     -- ====== LEFT COLUMN ======
     CreateNumberField(left, "RequiredPlayerKills", "requiredPlayerKills", 20, -52, 140, 160)
@@ -2182,10 +2191,12 @@ local function CreateRewardsPage(parent)
     local CARD_W = 350
     local CARD_H = 500
     local GAP = 16
+    local RWD_TOTAL = CARD_W + GAP + CARD_W + GAP + CARD_W
+    local RWD_X = math.floor((1150 - RWD_TOTAL) / 2)
 
-    local left  = CreateCard(p, nil,  18, -18, CARD_W, CARD_H, "Money / XP / Honor", "Interface\\Icons\\INV_Misc_Coin_01")
-    local mid   = CreateCard(p, nil,  18 + CARD_W + GAP, -18, CARD_W, CARD_H, "Spells / Title", "Interface\\Icons\\Spell_Holy_DivineIllumination")
-    local right = CreateCard(p, nil,  18 + CARD_W + GAP + CARD_W + GAP, -18, CARD_W, CARD_H, "Reward Items", "Interface\\Icons\\INV_Misc_Gift_01")
+    local left  = CreateCard(p, nil,  RWD_X, -18, CARD_W, CARD_H, "Money / XP / Honor", "Interface\\Icons\\INV_Misc_Coin_01")
+    local mid   = CreateCard(p, nil,  RWD_X + CARD_W + GAP, -18, CARD_W, CARD_H, "Spells / Title", "Interface\\Icons\\Spell_Holy_DivineIllumination")
+    local right = CreateCard(p, nil,  RWD_X + CARD_W + GAP + CARD_W + GAP, -18, CARD_W, CARD_H, "Reward Items", "Interface\\Icons\\INV_Misc_Gift_01")
 
     -- LEFT: Money / XP / Honor
     local leftLabelW = 140
@@ -2273,8 +2284,12 @@ end
 local function CreateReputationPage(parent)
     local p = CreatePage(parent, "reputation")
 
-    local left  = CreateCard(p, nil,  18, -18, 530, 500, "Required Reputation", "Interface\\Icons\\INV_Jewelry_Talisman_08")
-    local right = CreateCard(p, nil,  564, -18, 530, 500, "Reward Reputation", "Interface\\Icons\\INV_Jewelry_Talisman_07")
+    local REP_W = 530
+    local REP_GAP = 16
+    local REP_TOTAL = REP_W + REP_GAP + REP_W
+    local REP_X = math.floor((1150 - REP_TOTAL) / 2)
+    local left  = CreateCard(p, nil,  REP_X, -18, REP_W, 500, "Required Reputation", "Interface\\Icons\\INV_Jewelry_Talisman_08")
+    local right = CreateCard(p, nil,  REP_X + REP_W + REP_GAP, -18, REP_W, 500, "Reward Reputation", "Interface\\Icons\\INV_Jewelry_Talisman_07")
 
     -- LEFT: Required Reputation
     CreateLabel(left, "RequiredFactionId",    90, -58, 140)
@@ -2327,8 +2342,13 @@ local function CreateReputationPage(parent)
 end
 local function CreateChainPage(parent)
     local p = CreatePage(parent, "chain")
-    local left  = CreateCard(p, nil,  18, -18, 500, 500, "Quest Chain")
-    local right = CreateCard(p, nil,  534, -18, 560, 500, "Notas de cadena")
+    local CHN_L = 500
+    local CHN_R = 560
+    local CHN_GAP = 16
+    local CHN_TOTAL = CHN_L + CHN_GAP + CHN_R
+    local CHN_X = math.floor((1150 - CHN_TOTAL) / 2)
+    local left  = CreateCard(p, nil,  CHN_X, -18, CHN_L, 500, "Quest Chain")
+    local right = CreateCard(p, nil,  CHN_X + CHN_L + CHN_GAP, -18, CHN_R, 500, "Notas de cadena")
     CreatePlainField(left, "PrevQuestID",     "prevQuestId",     20, -72,  160, 300, false)
     CreatePlainField(left, "NextQuestID",     "nextQuestId",     20, -120, 160, 300, false)
     CreatePlainField(left, "RewardNextQuest", "rewardNextQuest", 20, -168, 160, 300, false)
@@ -2341,8 +2361,12 @@ end
 local function CreateStarterPage(parent)
     local p = CreatePage(parent, "starter")
 
-    local left  = CreateCard(p, nil,  18, -18, 530, 500, "Starter", "Interface\\Icons\\INV_Misc_Map_01")
-    local right = CreateCard(p, nil,  564, -18, 530, 500, "Ender", "Interface\\Icons\\INV_Misc_Map_02")
+    local STR_W = 530
+    local STR_GAP = 16
+    local STR_TOTAL = STR_W + STR_GAP + STR_W
+    local STR_X = math.floor((1150 - STR_TOTAL) / 2)
+    local left  = CreateCard(p, nil,  STR_X, -18, STR_W, 500, "Starter", "Interface\\Icons\\INV_Misc_Map_01")
+    local right = CreateCard(p, nil,  STR_X + STR_W + STR_GAP, -18, STR_W, 500, "Ender", "Interface\\Icons\\INV_Misc_Map_02")
 
     local function AddCornerStar(card)
         local star = card:CreateTexture(nil, "OVERLAY")
@@ -2414,9 +2438,13 @@ local function CreateStarterPage(parent)
 end
 local function CreateAdvancedPage(parent)
     local p = CreatePage(parent, "advanced")
-    local left  = CreateCard(p, nil,  18, -18, 350, 500, "Addon / Requirements")
-    local mid   = CreateCard(p, nil,  384, -18, 350, 500, "Request / Offer Emotes")
-    local right = CreateCard(p, nil,  750, -18, 350, 500, "POI / Misc")
+    local ADV_W = 350
+    local ADV_GAP = 16
+    local ADV_TOTAL = ADV_W + ADV_GAP + ADV_W + ADV_GAP + ADV_W
+    local ADV_X = math.floor((1150 - ADV_TOTAL) / 2)
+    local left  = CreateCard(p, nil,  ADV_X, -18, ADV_W, 500, "Addon / Requirements")
+    local mid   = CreateCard(p, nil,  ADV_X + ADV_W + ADV_GAP, -18, ADV_W, 500, "Request / Offer Emotes")
+    local right = CreateCard(p, nil,  ADV_X + ADV_W + ADV_GAP + ADV_W + ADV_GAP, -18, ADV_W, 500, "POI / Misc")
     CreatePlainField(left,  "MaxLevel",              "maxLevel",              20, -72,  160, 160, false)
     CreatePlainField(left,  "AllowableClasses",      "allowableClasses",      20, -118, 160, 160, false)
     CreateNumberField(left, "SourceSpellID",         "sourceSpellId",         20, -164, 160, 160)
@@ -2927,11 +2955,10 @@ end
 
 local function CreatePreviewPage(parent)
     local p = CreatePage(parent, "preview")
-    p:SetWidth(1150)
     preview.page = p
-    local left = CreateCard(p, nil, 33, -18, 260, 480, L.CARD_QUEST_SUMMARY)
-    local center = CreateCard(p, nil, 305, -18, 540, 480, "")
-    local right = CreateCard(p, nil, 857, -18, 260, 480, L.CARD_PREVIEW_CONTROLS)
+    local left = CreateCard(p, nil, 13, -18, 270, 480, L.CARD_QUEST_SUMMARY)
+    local center = CreateCard(p, nil, 295, -18, 560, 480, "")
+    local right = CreateCard(p, nil, 867, -18, 270, 480, L.CARD_PREVIEW_CONTROLS)
     preview.widgets.left = left
     preview.widgets.center = center
     preview.widgets.right = right
@@ -2965,7 +2992,7 @@ local function CreatePreviewPage(parent)
     preview.widgets.startNpcLabel = CreateMutedLabel(left, "", 100, -444, 140)
     CreateLabel(left, L.LBL_END_NPC, 14, -462, 80)
     preview.widgets.endNpcLabel = CreateMutedLabel(left, "", 100, -462, 140)
-    local qf = CreatePanel(center, nil, 10, -10, 520, 420)
+    local qf = CreatePanel(center, nil, 10, -10, 540, 420)
     qf:SetBackdropColor(0.015, 0.012, 0.01, 0.94)
     qf:SetBackdropBorderColor(0.85, 0.62, 0.28, 0.95)
     preview.widgets.questFrame = qf
@@ -2991,7 +3018,7 @@ local function CreatePreviewPage(parent)
     preview.widgets.portraitBg = portraitBg
     local header = CreateFrame("Frame", nil, qf)
     header:SetPoint("TOPLEFT", qf, "TOPLEFT", 82, -16)
-    header:SetWidth(390)
+    header:SetWidth(410)
     header:SetHeight(28)
     header:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -3014,7 +3041,7 @@ local function CreatePreviewPage(parent)
     preview.widgets.previewClose = closeBtn
     local parchment = CreateFrame("Frame", nil, qf)
     parchment:SetPoint("TOPLEFT", qf, "TOPLEFT", 22, -86)
-    parchment:SetWidth(476)
+    parchment:SetWidth(496)
     parchment:SetHeight(280)
     parchment:SetBackdrop({
         bgFile = "Interface\\QuestFrame\\QuestBG",
@@ -3037,38 +3064,38 @@ local function CreatePreviewPage(parent)
     scroll:SetPoint("TOPLEFT", parchment, "TOPLEFT", 12, -12)
     scroll:SetPoint("BOTTOMRIGHT", parchment, "BOTTOMRIGHT", -28, 12)
     local scrollChild = CreateFrame("Frame", scrollName .. "Child", scroll)
-    scrollChild:SetWidth(420)
+    scrollChild:SetWidth(440)
     scrollChild:SetHeight(900)
     scroll:SetScrollChild(scrollChild)
     preview.widgets.previewScroll = scroll
     preview.widgets.previewScrollChild = scrollChild
     local questTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
     questTitle:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0)
-    questTitle:SetWidth(410)
+    questTitle:SetWidth(430)
     questTitle:SetJustifyH("LEFT")
     questTitle:SetTextColor(0.19, 0.08, 0.015)
     preview.widgets.questTitle = questTitle
     local questBody = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
     questBody:SetPoint("TOPLEFT", questTitle, "BOTTOMLEFT", 0, -18)
-    questBody:SetWidth(410)
+    questBody:SetWidth(430)
     questBody:SetJustifyH("LEFT")
     questBody:SetJustifyV("TOP")
     questBody:SetTextColor(0.12, 0.06, 0.01)
     preview.widgets.questBody = questBody
     local rewardTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
-    rewardTitle:SetWidth(410)
+    rewardTitle:SetWidth(430)
     rewardTitle:SetJustifyH("LEFT")
     rewardTitle:SetTextColor(0.19, 0.08, 0.015)
     rewardTitle:SetText("RECOMPENSAS")
     preview.widgets.previewRewardTitle = rewardTitle
     local rewardBody = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
-    rewardBody:SetWidth(410)
+    rewardBody:SetWidth(430)
     rewardBody:SetJustifyH("LEFT")
     rewardBody:SetJustifyV("TOP")
     rewardBody:SetTextColor(0.12, 0.06, 0.01)
     preview.widgets.previewRewardBody = rewardBody
     preview.widgets.previewRewardItemsTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
-    preview.widgets.previewRewardItemsTitle:SetWidth(410)
+    preview.widgets.previewRewardItemsTitle:SetWidth(430)
     preview.widgets.previewRewardItemsTitle:SetJustifyH("LEFT")
     preview.widgets.previewRewardItemsTitle:SetTextColor(0.19, 0.08, 0.015)
     preview.widgets.previewRewardItemsTitle:SetText("OBJETOS DE RECOMPENSA")
@@ -3124,7 +3151,7 @@ local function CreatePreviewPage(parent)
         return cell
     end
     local choiceTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
-    choiceTitle:SetWidth(410)
+    choiceTitle:SetWidth(430)
     choiceTitle:SetJustifyH("LEFT")
     choiceTitle:SetTextColor(0.12, 0.06, 0.01)
     choiceTitle:SetText("Podrás elegir una de estas recompensas:")
@@ -3134,7 +3161,7 @@ local function CreatePreviewPage(parent)
         preview.choiceCells[i] = MakeItemCell(scrollChild, true)
     end
     local alsoTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
-    alsoTitle:SetWidth(410)
+    alsoTitle:SetWidth(430)
     alsoTitle:SetJustifyH("LEFT")
     alsoTitle:SetTextColor(0.12, 0.06, 0.01)
     alsoTitle:SetText("También recibirás:")
@@ -3144,17 +3171,17 @@ local function CreatePreviewPage(parent)
         preview.fixedCells[i] = MakeItemCell(scrollChild, false)
     end
     local moneyRow = CreateFrame("Frame", nil, scrollChild)
-    moneyRow:SetWidth(410)
+    moneyRow:SetWidth(430)
     moneyRow:SetHeight(22)
     preview.widgets.previewMoneyRow = moneyRow
     local moneyFS = moneyRow:CreateFontString(nil, "OVERLAY", "QuestFont")
     moneyFS:SetPoint("LEFT", moneyRow, "LEFT", 0, 0)
-    moneyFS:SetWidth(410)
+    moneyFS:SetWidth(430)
     moneyFS:SetJustifyH("LEFT")
     moneyFS:SetTextColor(0.12, 0.06, 0.01)
     preview.widgets.previewMoneyText = moneyFS
     local reqTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
-    reqTitle:SetWidth(410)
+    reqTitle:SetWidth(430)
     reqTitle:SetJustifyH("LEFT")
     reqTitle:SetTextColor(0.19, 0.08, 0.015)
     reqTitle:SetText("Objetos necesarios:")
@@ -3164,7 +3191,7 @@ local function CreatePreviewPage(parent)
         preview.reqCells[i] = MakeItemCell(scrollChild, false)
     end
     local acceptButton = CreateButton(qf, L.BTN_ACCEPT, 28, -375, 100, 24)
-    local rejectButton = CreateButton(qf, L.BTN_REJECT, 392, -375, 100, 24)
+    local rejectButton = CreateButton(qf, L.BTN_REJECT, 412, -375, 100, 24)
     acceptButton:Hide()
     rejectButton:Hide()
     preview.widgets.acceptButton = acceptButton
@@ -3220,14 +3247,14 @@ local function CreatePreviewPage(parent)
     for i = 1, 4 do
         local row = {}
         local fs = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
-        fs:SetWidth(390)
+        fs:SetWidth(430)
         fs:SetJustifyH("LEFT")
         fs:SetJustifyV("TOP")
         fs:SetTextColor(0.12, 0.06, 0.01)
         fs:Hide()
         row.fs = fs
         local btn = CreateFrame("Button", nil, scrollChild)
-        btn:SetWidth(410)
+        btn:SetWidth(430)
         btn:SetHeight(18)
         btn:Hide()
         btn._npcEntry = 0
