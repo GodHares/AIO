@@ -2927,10 +2927,11 @@ end
 
 local function CreatePreviewPage(parent)
     local p = CreatePage(parent, "preview")
+    p:SetWidth(1150)
     preview.page = p
-    local left = CreateCard(p, nil, 31, -18, 260, 480, L.CARD_QUEST_SUMMARY)
-    local center = CreateCard(p, nil, 303, -18, 500, 480, "")
-    local right = CreateCard(p, nil, 815, -18, 260, 480, L.CARD_PREVIEW_CONTROLS)
+    local left = CreateCard(p, nil, 33, -18, 260, 480, L.CARD_QUEST_SUMMARY)
+    local center = CreateCard(p, nil, 305, -18, 540, 480, "")
+    local right = CreateCard(p, nil, 857, -18, 260, 480, L.CARD_PREVIEW_CONTROLS)
     preview.widgets.left = left
     preview.widgets.center = center
     preview.widgets.right = right
@@ -2964,7 +2965,7 @@ local function CreatePreviewPage(parent)
     preview.widgets.startNpcLabel = CreateMutedLabel(left, "", 100, -444, 140)
     CreateLabel(left, L.LBL_END_NPC, 14, -462, 80)
     preview.widgets.endNpcLabel = CreateMutedLabel(left, "", 100, -462, 140)
-    local qf = CreatePanel(center, nil, 10, -10, 480, 420)
+    local qf = CreatePanel(center, nil, 10, -10, 520, 420)
     qf:SetBackdropColor(0.015, 0.012, 0.01, 0.94)
     qf:SetBackdropBorderColor(0.85, 0.62, 0.28, 0.95)
     preview.widgets.questFrame = qf
@@ -2990,7 +2991,7 @@ local function CreatePreviewPage(parent)
     preview.widgets.portraitBg = portraitBg
     local header = CreateFrame("Frame", nil, qf)
     header:SetPoint("TOPLEFT", qf, "TOPLEFT", 82, -16)
-    header:SetWidth(350)
+    header:SetWidth(390)
     header:SetHeight(28)
     header:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -3013,7 +3014,7 @@ local function CreatePreviewPage(parent)
     preview.widgets.previewClose = closeBtn
     local parchment = CreateFrame("Frame", nil, qf)
     parchment:SetPoint("TOPLEFT", qf, "TOPLEFT", 22, -86)
-    parchment:SetWidth(436)
+    parchment:SetWidth(476)
     parchment:SetHeight(280)
     parchment:SetBackdrop({
         bgFile = "Interface\\QuestFrame\\QuestBG",
@@ -3036,38 +3037,38 @@ local function CreatePreviewPage(parent)
     scroll:SetPoint("TOPLEFT", parchment, "TOPLEFT", 12, -12)
     scroll:SetPoint("BOTTOMRIGHT", parchment, "BOTTOMRIGHT", -28, 12)
     local scrollChild = CreateFrame("Frame", scrollName .. "Child", scroll)
-    scrollChild:SetWidth(380)
+    scrollChild:SetWidth(420)
     scrollChild:SetHeight(900)
     scroll:SetScrollChild(scrollChild)
     preview.widgets.previewScroll = scroll
     preview.widgets.previewScrollChild = scrollChild
     local questTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
     questTitle:SetPoint("TOPLEFT", scrollChild, "TOPLEFT", 0, 0)
-    questTitle:SetWidth(370)
+    questTitle:SetWidth(410)
     questTitle:SetJustifyH("LEFT")
     questTitle:SetTextColor(0.19, 0.08, 0.015)
     preview.widgets.questTitle = questTitle
     local questBody = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
     questBody:SetPoint("TOPLEFT", questTitle, "BOTTOMLEFT", 0, -18)
-    questBody:SetWidth(370)
+    questBody:SetWidth(410)
     questBody:SetJustifyH("LEFT")
     questBody:SetJustifyV("TOP")
     questBody:SetTextColor(0.12, 0.06, 0.01)
     preview.widgets.questBody = questBody
     local rewardTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
-    rewardTitle:SetWidth(370)
+    rewardTitle:SetWidth(410)
     rewardTitle:SetJustifyH("LEFT")
     rewardTitle:SetTextColor(0.19, 0.08, 0.015)
     rewardTitle:SetText("RECOMPENSAS")
     preview.widgets.previewRewardTitle = rewardTitle
     local rewardBody = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
-    rewardBody:SetWidth(370)
+    rewardBody:SetWidth(410)
     rewardBody:SetJustifyH("LEFT")
     rewardBody:SetJustifyV("TOP")
     rewardBody:SetTextColor(0.12, 0.06, 0.01)
     preview.widgets.previewRewardBody = rewardBody
     preview.widgets.previewRewardItemsTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
-    preview.widgets.previewRewardItemsTitle:SetWidth(370)
+    preview.widgets.previewRewardItemsTitle:SetWidth(410)
     preview.widgets.previewRewardItemsTitle:SetJustifyH("LEFT")
     preview.widgets.previewRewardItemsTitle:SetTextColor(0.19, 0.08, 0.015)
     preview.widgets.previewRewardItemsTitle:SetText("OBJETOS DE RECOMPENSA")
@@ -3123,7 +3124,7 @@ local function CreatePreviewPage(parent)
         return cell
     end
     local choiceTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
-    choiceTitle:SetWidth(370)
+    choiceTitle:SetWidth(410)
     choiceTitle:SetJustifyH("LEFT")
     choiceTitle:SetTextColor(0.12, 0.06, 0.01)
     choiceTitle:SetText("Podrás elegir una de estas recompensas:")
@@ -3133,7 +3134,7 @@ local function CreatePreviewPage(parent)
         preview.choiceCells[i] = MakeItemCell(scrollChild, true)
     end
     local alsoTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
-    alsoTitle:SetWidth(370)
+    alsoTitle:SetWidth(410)
     alsoTitle:SetJustifyH("LEFT")
     alsoTitle:SetTextColor(0.12, 0.06, 0.01)
     alsoTitle:SetText("También recibirás:")
@@ -3143,17 +3144,17 @@ local function CreatePreviewPage(parent)
         preview.fixedCells[i] = MakeItemCell(scrollChild, false)
     end
     local moneyRow = CreateFrame("Frame", nil, scrollChild)
-    moneyRow:SetWidth(370)
+    moneyRow:SetWidth(410)
     moneyRow:SetHeight(22)
     preview.widgets.previewMoneyRow = moneyRow
     local moneyFS = moneyRow:CreateFontString(nil, "OVERLAY", "QuestFont")
     moneyFS:SetPoint("LEFT", moneyRow, "LEFT", 0, 0)
-    moneyFS:SetWidth(370)
+    moneyFS:SetWidth(410)
     moneyFS:SetJustifyH("LEFT")
     moneyFS:SetTextColor(0.12, 0.06, 0.01)
     preview.widgets.previewMoneyText = moneyFS
     local reqTitle = scrollChild:CreateFontString(nil, "OVERLAY", "QuestTitleFont")
-    reqTitle:SetWidth(370)
+    reqTitle:SetWidth(410)
     reqTitle:SetJustifyH("LEFT")
     reqTitle:SetTextColor(0.19, 0.08, 0.015)
     reqTitle:SetText("Objetos necesarios:")
@@ -3163,7 +3164,7 @@ local function CreatePreviewPage(parent)
         preview.reqCells[i] = MakeItemCell(scrollChild, false)
     end
     local acceptButton = CreateButton(qf, L.BTN_ACCEPT, 28, -375, 100, 24)
-    local rejectButton = CreateButton(qf, L.BTN_REJECT, 352, -375, 100, 24)
+    local rejectButton = CreateButton(qf, L.BTN_REJECT, 392, -375, 100, 24)
     acceptButton:Hide()
     rejectButton:Hide()
     preview.widgets.acceptButton = acceptButton
@@ -3219,14 +3220,14 @@ local function CreatePreviewPage(parent)
     for i = 1, 4 do
         local row = {}
         local fs = scrollChild:CreateFontString(nil, "OVERLAY", "QuestFont")
-        fs:SetWidth(350)
+        fs:SetWidth(390)
         fs:SetJustifyH("LEFT")
         fs:SetJustifyV("TOP")
         fs:SetTextColor(0.12, 0.06, 0.01)
         fs:Hide()
         row.fs = fs
         local btn = CreateFrame("Button", nil, scrollChild)
-        btn:SetWidth(370)
+        btn:SetWidth(410)
         btn:SetHeight(18)
         btn:Hide()
         btn._npcEntry = 0
