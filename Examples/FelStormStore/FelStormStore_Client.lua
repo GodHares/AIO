@@ -3735,7 +3735,7 @@ UpdateCategoryButtonStates()
 UpdateTabLayout()
 ClearDetailPanel()
 
-function ToggleStoreUI()
+local function ToggleStoreUI()
     if MainFrame:IsShown() then MainFrame:Hide() else AIO.Handle("FelStormStore", "RequestOpenStore") end
 end
 
