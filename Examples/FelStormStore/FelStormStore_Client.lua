@@ -1,6 +1,11 @@
 local AIO = AIO or require("AIO")
 if AIO.AddAddon() then return end
 
+_G.ToggleStoreUI = function()
+    local f = _G["FelStormStoreFrame"]
+    if f and f:IsShown() then f:Hide() else AIO.Handle("FelStormStore", "RequestOpenStore") end
+end
+
 local StoreHandlers = AIO.AddHandlers("FelStormStore", {})
 
 local currentCategory = "Destacado"
@@ -3734,10 +3739,6 @@ end)
 UpdateCategoryButtonStates()
 UpdateTabLayout()
 ClearDetailPanel()
-
-_G.ToggleStoreUI = function()
-    if MainFrame:IsShown() then MainFrame:Hide() else AIO.Handle("FelStormStore", "RequestOpenStore") end
-end
 
 SlashCmdList["FELSTORMSTORE"] = _G.ToggleStoreUI
 MainFrame:Hide()
