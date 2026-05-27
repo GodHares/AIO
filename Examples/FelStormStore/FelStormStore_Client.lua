@@ -3735,37 +3735,9 @@ UpdateCategoryButtonStates()
 UpdateTabLayout()
 ClearDetailPanel()
 
-local function _ToggleStore()
+_G.ToggleStoreUI = function()
     if MainFrame:IsShown() then MainFrame:Hide() else AIO.Handle("FelStormStore", "RequestOpenStore") end
 end
 
-MainFrame._ToggleStore = _ToggleStore
-
-do
-    local btn = _G["GameMenuButtonStore"]
-    if btn then
-        btn:SetScript("OnClick", function()
-            PlaySound("igMainMenuOption")
-            HideUIPanel(GameMenuFrame)
-            local f = _G["FelStormStoreFrame"]
-            if f and f._ToggleStore then f._ToggleStore() end
-        end)
-    else
-        local gameMenuLoader = CreateFrame("Frame")
-        gameMenuLoader:RegisterEvent("PLAYER_LOGIN")
-        gameMenuLoader:SetScript("OnEvent", function(self, event)
-            local b = _G["GameMenuButtonStore"]
-            if not b then return end
-            b:SetScript("OnClick", function()
-                PlaySound("igMainMenuOption")
-                HideUIPanel(GameMenuFrame)
-                local f = _G["FelStormStoreFrame"]
-                if f and f._ToggleStore then f._ToggleStore() end
-            end)
-            self:UnregisterAllEvents()
-        end)
-    end
-end
-
-SlashCmdList["FELSTORMSTORE"] = _ToggleStore
+SlashCmdList["FELSTORMSTORE"] = _G.ToggleStoreUI
 MainFrame:Hide()
