@@ -818,78 +818,80 @@ MainFrame:SetScript("OnDragStart", MainFrame.StartMoving)
 MainFrame:SetScript("OnDragStop", MainFrame.StopMovingOrSizing)
 table.insert(UISpecialFrames, "FelStormStoreFrame")
 
-local MetalBorder = CreateFrame("Frame", nil, MainFrame)
-MetalBorder:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", -15, 30)
-MetalBorder:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", 5, -5)
-MetalBorder:SetFrameLevel(10)
+do
+    local MetalBorder = CreateFrame("Frame", nil, MainFrame)
+    MetalBorder:SetPoint("TOPLEFT", MainFrame, "TOPLEFT", -15, 30)
+    MetalBorder:SetPoint("BOTTOMRIGHT", MainFrame, "BOTTOMRIGHT", 5, -5)
+    MetalBorder:SetFrameLevel(10)
 
--- Esquina Superior Izquierda
-local CornerTopLeft = MetalBorder:CreateTexture(nil, "OVERLAY")
-CornerTopLeft:SetSize(75, 75)
-CornerTopLeft:SetPoint("TOPLEFT", MetalBorder, "TOPLEFT", 0, 0)
-CornerTopLeft:SetTexture("Interface\\FrameGeneral\\UIFrameMetal2x")
-CornerTopLeft:SetTexCoord(0.00195312, 0.294922, 0.298828, 0.591797)
+    -- Esquina Superior Izquierda
+    local CornerTopLeft = MetalBorder:CreateTexture(nil, "OVERLAY")
+    CornerTopLeft:SetSize(75, 75)
+    CornerTopLeft:SetPoint("TOPLEFT", MetalBorder, "TOPLEFT", 0, 0)
+    CornerTopLeft:SetTexture("Interface\\FrameGeneral\\UIFrameMetal2x")
+    CornerTopLeft:SetTexCoord(0.00195312, 0.294922, 0.298828, 0.591797)
 
--- Esquina Superior Derecha
-local CornerTopRight = MetalBorder:CreateTexture(nil, "OVERLAY")
-CornerTopRight:SetSize(75, 75)
-CornerTopRight:SetPoint("TOPRIGHT", MetalBorder, "TOPRIGHT", 0, 0)
-CornerTopRight:SetTexture("Interface\\FrameGeneral\\UIFrameMetal2x")
-CornerTopRight:SetTexCoord(0.298828, 0.591797, 0.00195312, 0.294922)
+    -- Esquina Superior Derecha
+    local CornerTopRight = MetalBorder:CreateTexture(nil, "OVERLAY")
+    CornerTopRight:SetSize(75, 75)
+    CornerTopRight:SetPoint("TOPRIGHT", MetalBorder, "TOPRIGHT", 0, 0)
+    CornerTopRight:SetTexture("Interface\\FrameGeneral\\UIFrameMetal2x")
+    CornerTopRight:SetTexCoord(0.298828, 0.591797, 0.00195312, 0.294922)
 
--- Esquina Inferior Izquierda
-local CornerBottomLeft = MetalBorder:CreateTexture(nil, "OVERLAY")
-CornerBottomLeft:SetSize(32, 32)
-CornerBottomLeft:SetPoint("BOTTOMLEFT", MetalBorder, "BOTTOMLEFT", 0, 0)
-CornerBottomLeft:SetTexture("Interface\\FrameGeneral\\UIFrameMetal2x")
-CornerBottomLeft:SetTexCoord(0.298828, 0.423828, 0.298828, 0.423828)
+    -- Esquina Inferior Izquierda
+    local CornerBottomLeft = MetalBorder:CreateTexture(nil, "OVERLAY")
+    CornerBottomLeft:SetSize(32, 32)
+    CornerBottomLeft:SetPoint("BOTTOMLEFT", MetalBorder, "BOTTOMLEFT", 0, 0)
+    CornerBottomLeft:SetTexture("Interface\\FrameGeneral\\UIFrameMetal2x")
+    CornerBottomLeft:SetTexCoord(0.298828, 0.423828, 0.298828, 0.423828)
 
--- Esquina Inferior Derecha
-local CornerBottomRight = MetalBorder:CreateTexture(nil, "OVERLAY")
-CornerBottomRight:SetSize(32, 32)
-CornerBottomRight:SetPoint("BOTTOMRIGHT", MetalBorder, "BOTTOMRIGHT", 0, 0)
-CornerBottomRight:SetTexture("Interface\\FrameGeneral\\UIFrameMetal2x")
-CornerBottomRight:SetTexCoord(0.427734, 0.552734, 0.298828, 0.423828)
+    -- Esquina Inferior Derecha
+    local CornerBottomRight = MetalBorder:CreateTexture(nil, "OVERLAY")
+    CornerBottomRight:SetSize(32, 32)
+    CornerBottomRight:SetPoint("BOTTOMRIGHT", MetalBorder, "BOTTOMRIGHT", 0, 0)
+    CornerBottomRight:SetTexture("Interface\\FrameGeneral\\UIFrameMetal2x")
+    CornerBottomRight:SetTexCoord(0.427734, 0.552734, 0.298828, 0.423828)
 
--- Borde Superior
-local BorderTop = MetalBorder:CreateTexture(nil, "OVERLAY")
-BorderTop:SetPoint("TOPLEFT", CornerTopLeft, "TOPRIGHT", 0, 0)
-BorderTop:SetPoint("TOPRIGHT", CornerTopRight, "TOPLEFT", 0, 0)
-BorderTop:SetHeight(75)
-BorderTop:SetTexture("Interface\\FrameGeneral\\UIFrameMetalHorizontal2x")
-BorderTop:SetTexCoord(0, 0.5, 0.00390625, 0.589844)
+    -- Borde Superior
+    local BorderTop = MetalBorder:CreateTexture(nil, "OVERLAY")
+    BorderTop:SetPoint("TOPLEFT", CornerTopLeft, "TOPRIGHT", 0, 0)
+    BorderTop:SetPoint("TOPRIGHT", CornerTopRight, "TOPLEFT", 0, 0)
+    BorderTop:SetHeight(75)
+    BorderTop:SetTexture("Interface\\FrameGeneral\\UIFrameMetalHorizontal2x")
+    BorderTop:SetTexCoord(0, 0.5, 0.00390625, 0.589844)
 
--- Borde Izquierdo
-local BorderLeft = MetalBorder:CreateTexture(nil, "OVERLAY")
-BorderLeft:SetPoint("TOPLEFT", CornerTopLeft, "BOTTOMLEFT", 0, 0)
-BorderLeft:SetPoint("BOTTOMLEFT", CornerBottomLeft, "TOPLEFT", 0, 0)
-BorderLeft:SetWidth(75)
-BorderLeft:SetTexture("Interface\\FrameGeneral\\UIFrameMetalVertical2x")
-BorderLeft:SetTexCoord(0.00195312, 0.294922, 0, 1)
+    -- Borde Izquierdo
+    local BorderLeft = MetalBorder:CreateTexture(nil, "OVERLAY")
+    BorderLeft:SetPoint("TOPLEFT", CornerTopLeft, "BOTTOMLEFT", 0, 0)
+    BorderLeft:SetPoint("BOTTOMLEFT", CornerBottomLeft, "TOPLEFT", 0, 0)
+    BorderLeft:SetWidth(75)
+    BorderLeft:SetTexture("Interface\\FrameGeneral\\UIFrameMetalVertical2x")
+    BorderLeft:SetTexCoord(0.00195312, 0.294922, 0, 1)
 
--- Borde Derecho
-local BorderRight = MetalBorder:CreateTexture(nil, "OVERLAY")
-BorderRight:SetPoint("TOPRIGHT", CornerTopRight, "BOTTOMRIGHT", 0, 0)
-BorderRight:SetPoint("BOTTOMRIGHT", CornerBottomRight, "TOPRIGHT", 0, 0)
-BorderRight:SetWidth(75)
-BorderRight:SetTexture("Interface\\FrameGeneral\\UIFrameMetalVertical2x")
-BorderRight:SetTexCoord(0.298828, 0.591797, 0, 1)
+    -- Borde Derecho
+    local BorderRight = MetalBorder:CreateTexture(nil, "OVERLAY")
+    BorderRight:SetPoint("TOPRIGHT", CornerTopRight, "BOTTOMRIGHT", 0, 0)
+    BorderRight:SetPoint("BOTTOMRIGHT", CornerBottomRight, "TOPRIGHT", 0, 0)
+    BorderRight:SetWidth(75)
+    BorderRight:SetTexture("Interface\\FrameGeneral\\UIFrameMetalVertical2x")
+    BorderRight:SetTexCoord(0.298828, 0.591797, 0, 1)
 
--- Borde Inferior
-local BorderBottom = MetalBorder:CreateTexture(nil, "OVERLAY")
-BorderBottom:SetPoint("BOTTOMLEFT", CornerBottomLeft, "BOTTOMRIGHT", 0, 0)
-BorderBottom:SetPoint("BOTTOMRIGHT", CornerBottomRight, "BOTTOMLEFT", 0, 0)
-BorderBottom:SetHeight(32)
-BorderBottom:SetTexture("Interface\\FrameGeneral\\UIFrameMetalHorizontal2x")
-BorderBottom:SetTexCoord(0, 1, 0.597656, 0.847656)
+    -- Borde Inferior
+    local BorderBottom = MetalBorder:CreateTexture(nil, "OVERLAY")
+    BorderBottom:SetPoint("BOTTOMLEFT", CornerBottomLeft, "BOTTOMRIGHT", 0, 0)
+    BorderBottom:SetPoint("BOTTOMRIGHT", CornerBottomRight, "BOTTOMLEFT", 0, 0)
+    BorderBottom:SetHeight(32)
+    BorderBottom:SetTexture("Interface\\FrameGeneral\\UIFrameMetalHorizontal2x")
+    BorderBottom:SetTexCoord(0, 1, 0.597656, 0.847656)
 
--- Botón de Cerrar (X)
-local CloseButton = CreateFrame("Button", nil, MainFrame, "CloseButtonTemplate")
-CloseButton:SetPoint("TOPRIGHT", MetalBorder, "TOPRIGHT", -4, -17)
-CloseButton:SetFrameLevel(20)
-CloseButton:SetScript("OnClick", function(self)
-    MainFrame:Hide()
-end)
+    -- Botón de Cerrar (X)
+    local CloseButton = CreateFrame("Button", nil, MainFrame, "CloseButtonTemplate")
+    CloseButton:SetPoint("TOPRIGHT", MetalBorder, "TOPRIGHT", -4, -17)
+    CloseButton:SetFrameLevel(20)
+    CloseButton:SetScript("OnClick", function(self)
+        MainFrame:Hide()
+    end)
+end
 
 -- Textura de fondo de categoria: cubre el frame principal completo
 MainBackgroundTexture = MainFrame:CreateTexture(nil, "BORDER")

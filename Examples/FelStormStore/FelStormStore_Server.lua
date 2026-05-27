@@ -1105,7 +1105,7 @@ function StoreHandlers.GiftItemRequest(player, categoryName, itemId, targetName)
 
     if not okPay then
         pendingGifts[giftKey] = nil
-        LogGiftError(player, targetName, categoryName, entryId, "Error al descontar moneda: " .. tostring(errPay))
+        LogGiftError(player, targetName, categoryName, itemId, "Error al descontar moneda: " .. tostring(errPay))
         AIO.Handle(player, "FelStormStore", "GiftResponse", false, "Error al procesar el pago.")
         return
     end
