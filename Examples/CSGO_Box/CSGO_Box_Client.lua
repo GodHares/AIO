@@ -275,7 +275,7 @@ detailContainer:SetAllPoints()
 -- Es top-level hija de UIParent (NO del overlay a pantalla completa), por lo que
 -- no oscurece toda la pantalla ni bloquea el resto del juego.
 local detailPanel = CreateFrame("Frame", "StrikeChestDetailPanel", UIParent)
-detailPanel:SetSize(620, 500)
+detailPanel:SetSize(780, 640)
 detailPanel:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 detailPanel:SetFrameStrata("DIALOG")
 detailPanel:SetToplevel(true)
@@ -306,16 +306,16 @@ local detailGlow = detailPanel:CreateTexture(nil, "ARTWORK")
 detailGlow:SetTexture("Interface\\Common\\talent-blue-glow")
 detailGlow:SetBlendMode("ADD")
 detailGlow:SetVertexColor(1.0, 0.78, 0.22, 0.5)
-detailGlow:SetSize(380, 380)
+detailGlow:SetSize(470, 470)
 
 -- Cabecera ornamentada (banner) con el titulo.
 local detailHeader = detailPanel:CreateTexture(nil, "ARTWORK")
 detailHeader:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
-detailHeader:SetSize(320, 64)
+detailHeader:SetSize(390, 74)
 detailHeader:SetPoint("TOP", detailPanel, "TOP", 0, 12)
 
 local detailTitle = detailPanel:CreateFontString(nil, "OVERLAY")
-detailTitle:SetFont("Fonts\\FRIZQT__.TTF", 18, "OUTLINE")
+detailTitle:SetFont("Fonts\\FRIZQT__.TTF", 22, "OUTLINE")
 detailTitle:SetPoint("TOP", detailHeader, "TOP", 0, -14)
 detailTitle:SetText("|cffFFD200ABRIR CONTENEDOR|r")
 
@@ -326,21 +326,21 @@ btnCloseDetail:SetScript("OnClick", function() detailPanel:Hide() end)
 
 -- Nombre del cofre (dorado, grande).
 local detailCaseName = detailPanel:CreateFontString(nil, "OVERLAY")
-detailCaseName:SetFont("Fonts\\FRIZQT__.TTF", 20, "OUTLINE")
-detailCaseName:SetPoint("TOP", detailPanel, "TOP", 0, -54)
+detailCaseName:SetFont("Fonts\\FRIZQT__.TTF", 24, "OUTLINE")
+detailCaseName:SetPoint("TOP", detailPanel, "TOP", 0, -66)
 
 -- Coste: icono de moneda/objeto + cantidad.
 local detailCost = detailPanel:CreateFontString(nil, "OVERLAY")
-detailCost:SetFont("Fonts\\FRIZQT__.TTF", 15)
+detailCost:SetFont("Fonts\\FRIZQT__.TTF", 17)
 detailCost:SetPoint("TOP", detailCaseName, "BOTTOM", 11, -8)
 
 local detailCostIcon = detailPanel:CreateTexture(nil, "ARTWORK")
-detailCostIcon:SetSize(20, 20)
+detailCostIcon:SetSize(24, 24)
 detailCostIcon:SetPoint("RIGHT", detailCost, "LEFT", -4, 0)
 
 -- Cofre grande: boton clicable para abrir el contenedor.
 local detailCaseIcon = CreateFrame("Button", nil, detailPanel)
-detailCaseIcon:SetSize(150, 150)
+detailCaseIcon:SetSize(196, 196)
 detailCaseIcon:SetPoint("TOP", detailCost, "BOTTOM", -11, -18)
 
 local detailCaseTex = detailCaseIcon:CreateTexture(nil, "ARTWORK")
@@ -364,19 +364,19 @@ detailCaseIcon:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
 -- Linea informativa bajo el cofre.
 local detailInfo = detailPanel:CreateFontString(nil, "OVERLAY")
-detailInfo:SetFont("Fonts\\FRIZQT__.TTF", 12)
+detailInfo:SetFont("Fonts\\FRIZQT__.TTF", 14)
 detailInfo:SetPoint("TOP", detailCaseIcon, "BOTTOM", 0, -12)
 detailInfo:SetText("|cffcfcfcfEste contenedor solo se puede abrir una vez.|r")
 
 -- Encabezado de la seccion de recompensas.
 local rewardsHeader = detailPanel:CreateFontString(nil, "OVERLAY")
-rewardsHeader:SetFont("Fonts\\FRIZQT__.TTF", 15, "OUTLINE")
+rewardsHeader:SetFont("Fonts\\FRIZQT__.TTF", 18, "OUTLINE")
 rewardsHeader:SetPoint("TOP", detailInfo, "BOTTOM", 0, -16)
 rewardsHeader:SetText("|cffFFD200POSIBLES RECOMPENSAS|r")
 
 -- Contenedor de la fila de recompensas (debajo del encabezado).
 local itemGridContainer = CreateFrame("Frame", nil, detailPanel)
-itemGridContainer:SetSize(580, 110)
+itemGridContainer:SetSize(700, 210)
 itemGridContainer:SetPoint("TOP", rewardsHeader, "BOTTOM", 0, -12)
 
 local itemGridFrames = {}
@@ -670,8 +670,8 @@ local function BuildItemGrid(caseInfo)
         return (rarityIndex[a.rarity] or 99) < (rarityIndex[b.rarity] or 99)
     end)
 
-    local ITEM_SIZE = 56
-    local ITEM_GAP = 8
+    local ITEM_SIZE = 62
+    local ITEM_GAP = 10
     local ITEMS_PER_ROW = 9
     local numItems = #sortedItems
     local numRows = math.ceil(numItems / ITEMS_PER_ROW)
