@@ -672,22 +672,41 @@ local function BuildItemGrid(caseInfo)
 
     local ITEM_SIZE = 62
     local ITEM_GAP = 10
-    local ITEMS_PER_ROW = 9
+    local MAX_PER_ROW = 9
+    local CARD_H = ITEM_SIZE + 30
+    local ROW_PITCH = CARD_H + ITEM_GAP
     local numItems = #sortedItems
-    local numRows = math.ceil(numItems / ITEMS_PER_ROW)
-    local totalGridW = ITEMS_PER_ROW * (ITEM_SIZE + ITEM_GAP) - ITEM_GAP
-    local totalGridH = numRows * (ITEM_SIZE + 30 + ITEM_GAP) - ITEM_GAP
+
+    -- Repartir en filas equilibradas: si hay mas de MAX_PER_ROW objetos,
+    -- distribuirlos en el menor numero de filas con el mismo ancho por fila
+    -- (p.ej. 16 -> 8 + 8 en vez de 9 + 7). Cada fila se centra de forma
+    -- independiente para que no quede pegada a la izquierda.
+    local numRows = math.ceil(numItems / MAX_PER_ROW)
+    local perRow = math.ceil(numItems / numRows)
+
+    -- Cuantos objetos hay en cada fila (las primeras filas van llenas; la
+    -- ultima puede llevar menos).
+    local function itemsInRow(row)
+        local remaining = numItems - row * perRow
+        if remaining > perRow then remaining = perRow end
+        return remaining
+    end
+
+    local totalGridW = perRow * (ITEM_SIZE + ITEM_GAP) - ITEM_GAP
+    local totalGridH = numRows * ROW_PITCH - ITEM_GAP
 
     itemGridContainer:SetSize(totalGridW, totalGridH)
 
     for idx, item in ipairs(sortedItems) do
-        local row = math.floor((idx - 1) / ITEMS_PER_ROW)
-        local col = (idx - 1) % ITEMS_PER_ROW
+        local row = math.floor((idx - 1) / perRow)
+        local col = (idx - 1) % perRow
 
         local card = CreateFrame("Frame", nil, itemGridContainer)
-        card:SetSize(ITEM_SIZE, ITEM_SIZE + 30)
-        local xOff = col * (ITEM_SIZE + ITEM_GAP) - totalGridW / 2 + ITEM_SIZE / 2
-        local yOff = -row * (ITEM_SIZE + 30 + ITEM_GAP)
+        card:SetSize(ITEM_SIZE, CARD_H)
+        -- Centrar cada fila segun cuantos objetos tenga (no segun perRow).
+        local rowW = itemsInRow(row) * (ITEM_SIZE + ITEM_GAP) - ITEM_GAP
+        local xOff = col * (ITEM_SIZE + ITEM_GAP) - rowW / 2 + ITEM_SIZE / 2
+        local yOff = -row * ROW_PITCH
         card:SetPoint("TOP", itemGridContainer, "TOP", xOff, yOff)
         card:EnableMouse(true)  -- *** NUEVO: habilitar mouse para tooltip ***
 
