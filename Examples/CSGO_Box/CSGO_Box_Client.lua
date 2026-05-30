@@ -267,15 +267,21 @@ overlayBg:SetVertexColor(0, 0, 0, 0.92)
 tinsert(UISpecialFrames, "StrikeChestOverlay")
 
 -- Detail view elements (visible before spinning)
+-- detailContainer queda como capa legacy (ya no se usa para mostrar el detalle).
 local detailContainer = CreateFrame("Frame", nil, overlay)
 detailContainer:SetAllPoints()
 
--- Panel central enmarcado (estilo dialogo de WoW: fondo oscuro + borde dorado
--- ornamentado + cabecera con banner). detailContainer sigue siendo la capa de
--- oscurecido a pantalla completa; detailPanel es el cuadro centrado.
-local detailPanel = CreateFrame("Frame", "StrikeChestDetailPanel", detailContainer)
+-- Ventana del detalle ("Abrir contenedor"): ventana NORMAL centrada y movible.
+-- Es top-level hija de UIParent (NO del overlay a pantalla completa), por lo que
+-- no oscurece toda la pantalla ni bloquea el resto del juego.
+local detailPanel = CreateFrame("Frame", "StrikeChestDetailPanel", UIParent)
 detailPanel:SetSize(620, 500)
-detailPanel:SetPoint("CENTER", detailContainer, "CENTER", 0, 0)
+detailPanel:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+detailPanel:SetFrameStrata("DIALOG")
+detailPanel:SetToplevel(true)
+detailPanel:SetClampedToScreen(true)
+detailPanel:Hide()
+tinsert(UISpecialFrames, "StrikeChestDetailPanel")
 detailPanel:EnableMouse(true)
 detailPanel:SetMovable(true)
 detailPanel:RegisterForDrag("LeftButton")
@@ -316,7 +322,7 @@ detailTitle:SetText("|cffFFD200ABRIR CONTENEDOR|r")
 -- Boton cerrar (X roja) arriba a la derecha.
 local btnCloseDetail = CreateFrame("Button", nil, detailPanel, "UIPanelCloseButton")
 btnCloseDetail:SetPoint("TOPRIGHT", detailPanel, "TOPRIGHT", -4, -4)
-btnCloseDetail:SetScript("OnClick", function() overlay:Hide() end)
+btnCloseDetail:SetScript("OnClick", function() detailPanel:Hide() end)
 
 -- Nombre del cofre (dorado, grande).
 local detailCaseName = detailPanel:CreateFontString(nil, "OVERLAY")
@@ -388,8 +394,7 @@ btnBackText:SetText("|cffcfcfcf< Volver|r")
 btnBackToList:SetScript("OnEnter", function() btnBackText:SetText("|cffFFD200< Volver|r") end)
 btnBackToList:SetScript("OnLeave", function() btnBackText:SetText("|cffcfcfcf< Volver|r") end)
 btnBackToList:SetScript("OnClick", function()
-    overlay:Hide()
-    detailContainer:Hide()
+    detailPanel:Hide()
     if selectFrame then selectFrame:Show() end
 end)
 
@@ -799,14 +804,11 @@ ShowCaseDetail = function(caseId, caseInfo)
     currentCaseId = caseId
     currentCaseInfo = caseInfo
 
-    -- Hide grid, show overlay with detail
+    -- Mostrar la ventana de detalle como ventana NORMAL (sin oscurecer la
+    -- pantalla). Ocultamos el overlay de giro/resultado (y sus hijos).
     gridFrame:Hide()
-    detailContainer:Show()
-    spinContainer:Hide()
-    modelFrame:Hide()
-    dressUpFrame:Hide()
-    iconResultFrame:Hide()
-    overlay:Show()
+    overlay:Hide()
+    detailPanel:Show()
 
     -- Nombre del cofre (dorado) y coste (icono de moneda + cantidad) debajo.
     local cost = NormalizeCaseCost(caseInfo)
@@ -914,7 +916,8 @@ local function ShowCaseGrid(casesInfo)
         nameText:SetText("|cffFFFFFF" .. info.name .. "|r")
 
         -- Price
-        local goldAmount = math.ceil(info.costGold / 10000)
+        local _gridCost = NormalizeCaseCost(info)
+        local goldAmount = math.ceil((_gridCost.amount or 0) / 10000)
         local priceText = card:CreateFontString(nil, "OVERLAY")
         priceText:SetFont("Fonts\\FRIZQT__.TTF", 12)
         priceText:SetPoint("TOP", nameText, "BOTTOM", 0, -4)
@@ -1191,6 +1194,7 @@ local animFrame = CreateFrame("Frame")
 local function StartSpinAnimation(reelData, winPosition)
     -- Switch to spin view
     detailContainer:Hide()
+    detailPanel:Hide()
     modelFrame:Hide()
     dressUpFrame:Hide()
     iconResultFrame:Hide()
@@ -1440,6 +1444,7 @@ local ClientHandlers = AIO.AddHandlers("StrikeChest", {})
 
 function ClientHandlers.ShowCaseSelect(player, casesInfo)
     overlay:Hide()
+    detailPanel:Hide()
     ShowCaseSelection(casesInfo)
 end
 
@@ -1450,6 +1455,7 @@ function ClientHandlers.StartSpin(player, caseId, reelData, winPosition, winEntr
     currentWinRarityName = winRarityName
     currentWinCreatureId = winCreatureId or 0
 
+    detailPanel:Hide()
     overlay:Show()
     selectFrame:Hide()
     StartSpinAnimation(reelData, winPosition)
@@ -1459,12 +1465,6 @@ function ClientHandlers.ShowCaseDetail(player, caseId, caseInfo)
     currentCaseId = caseId
     currentCaseInfo = caseInfo
     selectFrame:Hide()
-    overlay:Show()
-    detailContainer:Show()
-    spinContainer:Hide()
-    modelFrame:Hide()
-    dressUpFrame:Hide()
-    iconResultFrame:Hide()
     ShowCaseDetail(caseId, caseInfo)
 end
 
@@ -1499,6 +1499,7 @@ end)
 
 btnCloseResult:SetScript("OnClick", function()
     overlay:Hide()
+    detailPanel:Hide()
     spinContainer:Hide()
     detailContainer:Hide()
     modelFrame:Hide()
